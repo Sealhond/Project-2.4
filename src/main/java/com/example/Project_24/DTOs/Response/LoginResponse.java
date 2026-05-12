@@ -1,5 +1,7 @@
 package com.example.Project_24.DTOs.Response;
 
+import com.example.Project_24.Enums.Role;
+import com.example.Project_24.Enums.UserStatus;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 
@@ -8,5 +10,6 @@ import lombok.Data;
 public class LoginResponse {
     private String token;
     private Long userId;
-    private String role;
+    private Role role;
+    private UserStatus status;
 }

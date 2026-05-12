@@ -1,5 +1,7 @@
 package com.example.Project_24.DTOs.Response;
 
+import com.example.Project_24.Enums.Role;
+import com.example.Project_24.Enums.UserStatus;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 
@@ -15,8 +17,8 @@ public class UserResponse {
     private String email;
     private String phoneNumber;
     private Long bsn;
-    private String role;
-    private String status;
+    private Role role;
+    private UserStatus status;
     private Double dailyTransferLimit;
     private Double absoluteTransferLimit;
 }
