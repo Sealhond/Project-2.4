@@ -25,6 +25,7 @@ public class AuthService {
 
     public LoginResponse login(LoginRequest request)
     {
+        //find user by email
         Optional<User> user = userRepository.findByEmail(request.getEmail());
 
         if(user.isEmpty())
@@ -40,7 +41,7 @@ public class AuthService {
         //generate jwt token
         String token = jwtService.generateToken(user.get());
 
-        //return response
+        //return response (met token)
         return new LoginResponse(token, user.get().getId(), user.get().getRole(), user.get().getStatus());
     }
 

@@ -22,6 +22,7 @@ public class JwtService {
     private String secretKey;
 
     private final CustomUserDetailsService myUserDetailsService;
+
     public JwtService(CustomUserDetailsService myUserDetailsService) {
         this.myUserDetailsService = myUserDetailsService;
     }
