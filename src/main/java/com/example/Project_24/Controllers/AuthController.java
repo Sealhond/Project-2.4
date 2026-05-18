@@ -1,7 +1,9 @@
 package com.example.Project_24.Controllers;
 
 import com.example.Project_24.DTOs.Request.LoginRequest;
+import com.example.Project_24.DTOs.Request.RegisterRequest;
 import com.example.Project_24.DTOs.Response.LoginResponse;
+import com.example.Project_24.DTOs.Response.UserResponse;
 import com.example.Project_24.Services.AuthService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -28,5 +30,11 @@ public class AuthController {
 
     }
 
-    //TODO: /register
+    @PostMapping("/register")
+    public ResponseEntity<UserResponse> register(@RequestBody RegisterRequest request) {
+
+        UserResponse response = authService.register(request);
+        return ResponseEntity.ok(response);
+
+    }
 }
