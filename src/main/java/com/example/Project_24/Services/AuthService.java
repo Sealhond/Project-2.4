@@ -38,6 +38,10 @@ public class AuthService {
             throw new RuntimeException("Invalid credentials");
         }
 
+        if(user.get().getStatus() == UserStatus.CLOSED) {
+            throw new RuntimeException("Account is closed");
+        }
+
         //generate jwt token
         String token = jwtService.generateToken(user.get());
 
