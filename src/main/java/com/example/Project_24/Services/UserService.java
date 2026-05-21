@@ -2,6 +2,7 @@ package com.example.Project_24.Services;
 
 import com.example.Project_24.DTOs.Request.UpdateUserRequest;
 import com.example.Project_24.DTOs.Response.UserResponse;
+import com.example.Project_24.Enums.UserStatus;
 import com.example.Project_24.Models.User;
 import com.example.Project_24.Repositories.UserRepository;
 import lombok.RequiredArgsConstructor;
@@ -34,7 +35,7 @@ public class UserService {
         return userResponseList;
     }
 
-    //GET USER BY ID -----------
+    //GET USER BY ID ---------------------------
     public UserResponse getUserById(Long id) {
         Optional<User> user = userRepository.findById(id);
 
@@ -46,6 +47,7 @@ public class UserService {
         return mapToUserResponse(user.get());
     }
 
+    //UPDATE USER --------------------------
     public UserResponse updateUser(Long id, UpdateUserRequest request)
     {
         User existing = userRepository.findById(id)
@@ -66,25 +68,17 @@ public class UserService {
         return mapToUserResponse(savedUser);
     }
 
+
+    //DELETE USER -------------------------------------------
     public void deleteUser(Long id)
     {
         User user = userRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("User not found"));
 
-        //niet jezelf kunnen deleten
-        if (user.getEmail().equals(getCurrentUserEmail())) {
-            throw new RuntimeException("Can't delete your own account");
-        }
-
-        userRepository.deleteById(id);
+        user.setStatus(UserStatus.CLOSED);  //set status to closed
+        userRepository.save(user);
     }
 
-    //get current email van ingelogde user
-    private String getCurrentUserEmail() {
-        return SecurityContextHolder.getContext()
-                .getAuthentication()
-                .getName();  // returns email from jwt
-    }
 
     private UserResponse mapToUserResponse(User user) {
         return new UserResponse(

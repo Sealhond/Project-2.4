@@ -22,7 +22,7 @@ public interface UserRepository extends JpaRepository<User, Long> {
     //update user by id gebruikt findbyid & save
 
 
-    //delete user
+
 
 
 }
