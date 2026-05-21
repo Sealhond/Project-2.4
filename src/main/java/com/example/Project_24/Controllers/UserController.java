@@ -1,13 +1,11 @@
 package com.example.Project_24.Controllers;
 
+import com.example.Project_24.DTOs.Request.UpdateUserRequest;
 import com.example.Project_24.DTOs.Response.UserResponse;
 import com.example.Project_24.Models.User;
 import com.example.Project_24.Services.UserService;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
@@ -39,7 +37,18 @@ public class UserController {
     }
 
     //UPDATE USER
+    @PutMapping("/{id}")
+    public ResponseEntity<UserResponse> updateUser(@PathVariable Long id, @RequestBody UpdateUserRequest request) {
 
+        return ResponseEntity.ok(userService.updateUser(id, request));
+
+    }
 
     //DELETE USER
+    @DeleteMapping("/{id}")
+    public ResponseEntity<Void> deleteUser(@PathVariable Long id)
+    {
+        userService.deleteUser(id);
+        return ResponseEntity.noContent().build();
+    }
 }

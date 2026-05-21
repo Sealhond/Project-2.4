@@ -19,9 +19,7 @@ public interface UserRepository extends JpaRepository<User, Long> {
 
     //get all users is buildin in jpa repository
     //get user by id is buildin in jpa repository
-
-
-    //update user by id:
+    //update user by id gebruikt findbyid & save
 
 
     //delete user

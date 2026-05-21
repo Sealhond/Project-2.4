@@ -25,9 +25,8 @@ public class CustomUserDetailsService implements UserDetailsService {
         return new org.springframework.security.core.userdetails.User(
                 user.getEmail(),
                 user.getPassword(),
+                // list.of want spring expects een collection:
                 List.of(user.getRole())
         );
-
-        // list.of want spring expects een collection:
     }
 }
