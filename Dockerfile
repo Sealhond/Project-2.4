@@ -5,4 +5,4 @@ COPY . .
 RUN ./mvnw clean install -U
 
 EXPOSE 8080
-ENTRYPOINT [“./mvnw”,”spring-boot:run”]
+ENTRYPOINT ["./mvnw”,”spring-boot:run"]
