@@ -14,10 +14,10 @@ import lombok.NoArgsConstructor;
 public class Account {
 
     @Id
-    private Long IBAN;
+    private String IBAN;
 
     private Double balance;
-    private Double limit;
+    private Double accountLimit;
 
     @Enumerated(EnumType.STRING)
     private AccountStatus accountStatus;
