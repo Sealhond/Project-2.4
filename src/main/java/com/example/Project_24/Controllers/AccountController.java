@@ -73,11 +73,7 @@ public class AccountController {
     }
 
     @DeleteMapping("/{iban}")
-    public ResponseEntity<Void>
-    deleteAccount(
-            @PathVariable String iban
-    ) {
-
+    public ResponseEntity<Void> deleteAccount(@PathVariable String iban) {
         accountService.deleteAccount(iban);
 
         return ResponseEntity.noContent()
@@ -85,8 +81,7 @@ public class AccountController {
     }
 
     @PatchMapping("/{iban}/balance")
-    public ResponseEntity<String>
-    updateBalance(
+    public ResponseEntity<String> updateBalance(
             @PathVariable String iban,
             @RequestBody
             BalanceUpdateRequest request
@@ -103,8 +98,7 @@ public class AccountController {
     }
 
     @GetMapping("/user")
-    public ResponseEntity<List<String>>
-    getAccountsByUser(
+    public ResponseEntity<List<String>> getAccountsByUser(
             @RequestParam String firstName,
             @RequestParam String lastName
     ) {

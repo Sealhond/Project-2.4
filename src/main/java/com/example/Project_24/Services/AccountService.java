@@ -45,15 +45,11 @@ public class AccountService {
         Account account = getAccountByIban(iban);
 
         if (request.getAccountLimit() != null) {
-            account.setAccountLimit(
-                    request.getAccountLimit()
-            );
+            account.setAccountLimit(request.getAccountLimit());
         }
 
         if (request.getAccountStatus() != null) {
-            account.setAccountStatus(
-                    request.getAccountStatus()
-            );
+            account.setAccountStatus(request.getAccountStatus());
         }
 
         return accountRepository.save(account);
@@ -71,14 +67,14 @@ public class AccountService {
     }
 
     public @Nullable List<String> getAccountsByUser(String firstName, String lastName) {
-        return accountRepository.findByFirstNameAndLastName(firstName, lastName)
+        return accountRepository.findByUserFirstNameAndUserLastName(firstName, lastName)
                 .stream()
                 .map(Account::getIBAN)
                 .toList();
     }
 
     private String generateIban() {
-        return "NL69BANK" + UUID.randomUUID()
+        return "NL69SCAM" + UUID.randomUUID()
                 .toString()
                 .substring(0, 10);
     }

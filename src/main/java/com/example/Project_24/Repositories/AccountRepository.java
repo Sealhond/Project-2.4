@@ -7,5 +7,8 @@ import org.springframework.data.repository.CrudRepository;
 import java.util.List;
 
 public interface AccountRepository extends CrudRepository<Account, String> {
-    List<Account> findByFirstNameAndLastName(String firstName, String lastName);
+    List<Account> findByUserFirstNameAndUserLastName(
+            String firstName,
+            String lastName
+    );
 }
