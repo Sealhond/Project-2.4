@@ -8,6 +8,8 @@ import com.example.Project_24.Models.User;
 import com.example.Project_24.Repositories.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.BeanUtils;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
@@ -25,16 +27,9 @@ public class UserService {
     private final UserMapper userMapper;
 
     //RETURN ALL USERS (niet paginated) ------
-    public List<UserResponse> getAllUsers() {
-
-        List<User> users = userRepository.findAll();
-        List<UserResponse> userResponseList = new ArrayList<>();
-
-        for (User user : users) {
-            userResponseList.add(userMapper.mapToUserResponse(user));
-        }
-
-        return userResponseList;
+    public Page<UserResponse> getAllUsers(Pageable pageable) {
+        return userRepository.findAll(pageable)
+                .map(userMapper::mapToUserResponse);
     }
 
     //GET USER BY ID ---------------------------

@@ -9,10 +9,12 @@ import com.example.Project_24.Enums.UserStatus;
 import com.example.Project_24.Mappers.UserMapper;
 import com.example.Project_24.Models.User;
 import com.example.Project_24.Repositories.UserRepository;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.web.bind.annotation.RequestBody;
 
 import java.util.Optional;
 
@@ -52,7 +54,7 @@ public class AuthService {
     }
 
 
-    public UserResponse register(RegisterRequest request)
+    public UserResponse register(@Valid @RequestBody RegisterRequest request)
     {
 
         if(userRepository.existsByEmail(request.getEmail()))
