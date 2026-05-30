@@ -3,46 +3,82 @@ package com.example.Project_24.Services;
 import com.example.Project_24.DTOs.Request.AccountCreateRequest;
 import com.example.Project_24.DTOs.Request.AccountUpdateRequest;
 import com.example.Project_24.DTOs.Request.BalanceUpdateRequest;
+import com.example.Project_24.DTOs.Response.AccountResponse;
+import com.example.Project_24.DTOs.Response.UserSummaryResponse;
 import com.example.Project_24.Enums.AccountStatus;
+import com.example.Project_24.Enums.AccountType;
 import com.example.Project_24.Models.Account;
+import com.example.Project_24.Models.User;
 import com.example.Project_24.Repositories.AccountRepository;
-import org.jspecify.annotations.Nullable;
+import com.example.Project_24.Repositories.UserRepository;
 import org.springframework.stereotype.Service;
 
+import java.util.Date;
 import java.util.List;
+import java.util.Random;
 import java.util.UUID;
-
-import static java.math.BigInteger.ZERO;
 
 @Service
 public class AccountService {
+
     private final AccountRepository accountRepository;
+    private final UserRepository userRepository;
 
-    public AccountService(AccountRepository accountRepository) {
+    public AccountService(AccountRepository accountRepository, UserRepository userRepository) {
         this.accountRepository = accountRepository;
+        this.userRepository = userRepository;
     }
 
-    public @Nullable List<Account> getAllAccounts() {
-        return (List<Account>) accountRepository.findAll();
+    public List<AccountResponse> getAllAccounts() {
+
+        return accountRepository.findAll()
+                .stream()
+                .map(this::toResponse)
+                .toList();
     }
 
-    public Account createAccount(AccountCreateRequest request) {
+    public AccountResponse createAccount(
+            AccountCreateRequest request
+    ) {
+
+        User user = userRepository
+                .findById(request.getUserId())
+                .orElseThrow(() ->
+                        new RuntimeException(
+                                "User not found"
+                        ));
+
         Account account = new Account();
 
         account.setIBAN(generateIban());
-        account.setBalance((double) 0);
+        account.setAccountName(request.getAccountName());
+        account.setBalance(0.0);
         account.setAccountLimit(request.getAccountLimit());
-        account.setAccountStatus(AccountStatus.ACTIVE);
+        account.setDateCreated(new Date());
 
-        return accountRepository.save(account);
+        account.setAccountType(request.getAccountType());
+        account.setInterestRate(request.getInterestRate());
+        account.setAccountStatus(AccountStatus.CLOSED);
+        account.setInterestRate(request.getAccountType() == AccountType.SAVINGS ? 1.5 : 0.0);
+        account.setUser(user);
+
+        Account saved = accountRepository.save(account);
+
+        return toResponse(saved);
     }
 
-    public @Nullable Account getAccountByIban(String iban) {
-        return accountRepository.findById(iban).orElseThrow(() -> new RuntimeException("Account not found"));
+    public AccountResponse getAccountByIban(String iban) {
+
+        Account account = accountRepository.findById(iban)
+                .orElseThrow(() -> new RuntimeException( "Account not found"));
+
+        return toResponse(account);
     }
 
-    public @Nullable Account updateAccount(String iban, AccountUpdateRequest request) {
-        Account account = getAccountByIban(iban);
+    public AccountResponse updateAccount(String iban, AccountUpdateRequest request) {
+
+        Account account = accountRepository.findById(iban)
+                .orElseThrow(() -> new RuntimeException("Account not found"));
 
         if (request.getAccountLimit() != null) {
             account.setAccountLimit(request.getAccountLimit());
@@ -52,30 +88,75 @@ public class AccountService {
             account.setAccountStatus(request.getAccountStatus());
         }
 
-        return accountRepository.save(account);
+        Account updatedAccount = accountRepository.save(account);
+
+        return toResponse(updatedAccount);
     }
 
     public void deleteAccount(String iban) {
+
+        if (!accountRepository.existsById(iban)) {
+            throw new RuntimeException("Account not found");
+        }
+
+        accountRepository.deleteById(iban);
     }
 
     public void updateBalance(String iban, BalanceUpdateRequest request) {
-        Account account = getAccountByIban(iban);
+
+        Account account = accountRepository.findById(iban)
+                .orElseThrow(() -> new RuntimeException("Account not found"));
+
         Double newBalance = account.getBalance() + request.getAmount();
 
         account.setBalance(newBalance);
+
         accountRepository.save(account);
     }
 
-    public @Nullable List<String> getAccountsByUser(String firstName, String lastName) {
-        return accountRepository.findByUserFirstNameAndUserLastName(firstName, lastName)
+    public List<String> getAccountsByUser(String firstName, String lastName) {
+
+        return accountRepository.findByUserFirstNameContainingIgnoreCaseAndUserLastNameContainingIgnoreCase(firstName, lastName)
                 .stream()
                 .map(Account::getIBAN)
                 .toList();
     }
 
-    private String generateIban() {
-        return "NL69SCAM" + UUID.randomUUID()
-                .toString()
-                .substring(0, 10);
+    private AccountResponse toResponse(Account account) {
+
+        AccountResponse response = new AccountResponse();
+
+        response.setIBAN(account.getIBAN());
+        response.setAccountName(account.getAccountName());
+        response.setBalance(account.getBalance());
+        response.setAccountLimit(account.getAccountLimit());
+        response.setDateCreated(account.getDateCreated());
+        response.setInterestRate(account.getInterestRate());
+        response.setAccountType(account.getAccountType());
+        response.setAccountStatus(account.getAccountStatus());
+
+        if (account.getUser() != null) {
+
+            UserSummaryResponse userResponse = new UserSummaryResponse();
+
+            userResponse.setId(account.getUser().getId());
+            userResponse.setFirstName(account.getUser().getFirstName());
+            userResponse.setLastName(account.getUser().getLastName());
+
+            response.setUser(userResponse);
+        }
+
+        return response;
+    }
+
+    public String generateIban() {
+        Random random = new Random();
+        StringBuilder sb = new StringBuilder("NL69SCAM");
+
+        for (int i = 0; i < 10; i++) {
+            sb.append(random.nextInt(10));
+        }
+
+        return sb.toString();
     }
 }

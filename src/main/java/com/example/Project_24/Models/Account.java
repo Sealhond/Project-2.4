@@ -19,7 +19,6 @@ public class Account {
     @Id
     private String IBAN;
 
-    private int userId;
     private String accountName;
     private Double balance;
     private Double accountLimit;

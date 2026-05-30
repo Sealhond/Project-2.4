@@ -7,5 +7,8 @@ import lombok.Data;
 public class AccountUpdateRequest {
 
     private Double accountLimit;
+
     private AccountStatus accountStatus;
+
+    private String accountName;
 }
