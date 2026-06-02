@@ -29,6 +29,7 @@ public class WebSecurityConfig {
 
         // We need to do this to allow POST requests
         httpSecurity
+                .cors(cors -> {})
                 .csrf(csrf -> csrf.disable())
                 .cors(cors -> cors.configurationSource(corsConfigurationSource()))
 
@@ -54,16 +55,18 @@ public class WebSecurityConfig {
 
     @Bean
     public CorsConfigurationSource corsConfigurationSource() {
+
         CorsConfiguration config = new CorsConfiguration();
-        config.setAllowedOrigins(List.of(
-                "http://localhost:5173",
-                "https://m3rel.github.io"
-        ));
-        config.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE"));
+
+        config.setAllowedOrigins(List.of("http://localhost:5173","https://m3rel.github.io/project-2.4-frontend"));
+        config.setAllowedMethods(List.of("GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"));
         config.setAllowedHeaders(List.of("*"));
+        config.setAllowCredentials(true);
 
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
         source.registerCorsConfiguration("/**", config);
+
+
         return source;
     }
 }
