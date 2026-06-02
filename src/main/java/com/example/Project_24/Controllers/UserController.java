@@ -4,6 +4,10 @@ import com.example.Project_24.DTOs.Request.UpdateUserRequest;
 import com.example.Project_24.DTOs.Response.UserResponse;
 import com.example.Project_24.Models.User;
 import com.example.Project_24.Services.UserService;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -22,10 +26,12 @@ public class UserController {
 
     //GET ALL USERS
     @GetMapping
-    public ResponseEntity<List<UserResponse>> getAllUsers() {
-
-        return ResponseEntity.ok(userService.getAllUsers());
-
+    public ResponseEntity<Page<UserResponse>> getAllUsers(
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size
+    ) {
+        Pageable pageable = PageRequest.of(page, size, Sort.by("lastName").ascending());
+        return ResponseEntity.ok(userService.getAllUsers(pageable));
     }
 
     //GET BY ID
