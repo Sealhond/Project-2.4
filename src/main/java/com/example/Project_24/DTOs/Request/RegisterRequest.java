@@ -1,9 +1,6 @@
 package com.example.Project_24.DTOs.Request;
 
-import jakarta.validation.constraints.Email;
-import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.NotNull;
-import jakarta.validation.constraints.Size;
+import jakarta.validation.constraints.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -31,8 +28,10 @@ public class RegisterRequest {
     private String password;
 
     @NotBlank(message = "Phone number is required")
+    @Pattern(regexp = "^[0-9]{10,13}$", message = "Phone number must contain only digits")
     private String phoneNumber;
 
     @NotNull(message = "BSN is required")
-    private Long bsn;
+    @Pattern(regexp = "^[0-9]{8,9}$", message = "BSN must contain only digits")
+    private String bsn;
 }

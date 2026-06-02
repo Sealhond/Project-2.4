@@ -21,12 +21,25 @@ public class GlobalExceptionHandler {
         return ResponseEntity.status(400).body(new ErrorResponse(400, ex.getMessage()));
     }
 
+    @ExceptionHandler(MethodArgumentNotValidException.class)
+    public ResponseEntity<ErrorResponse> handleValidationException(MethodArgumentNotValidException ex) {
+        String firstError = ex.getBindingResult().getFieldErrors()
+                .stream()
+                .findFirst()
+                .map(err -> err.getDefaultMessage())
+                .orElse("Validation failed");
+
+        return ResponseEntity.status(400).body(new ErrorResponse(400, firstError));
+    }
+
 
 
     @ExceptionHandler(Exception.class)
     public ResponseEntity<ErrorResponse> handleGeneralException(Exception ex) {
         return ResponseEntity.status(500).body(new ErrorResponse(500, "Something went wrong"));
     }
+
+
 
 
 

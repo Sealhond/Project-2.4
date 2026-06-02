@@ -38,7 +38,7 @@ public class UserMapper {
         newUser.setLastName(request.getLastName());
         newUser.setRole(Role.ROLE_CUSTOMER);
         newUser.setStatus(UserStatus.PENDING);
-        newUser.setBsn(request.getBsn());
+        newUser.setBsn(Long.parseLong(request.getBsn()));
         newUser.setPhoneNumber(request.getPhoneNumber());
 
         return newUser;
