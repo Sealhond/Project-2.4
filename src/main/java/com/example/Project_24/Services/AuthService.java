@@ -6,12 +6,15 @@ import com.example.Project_24.DTOs.Response.LoginResponse;
 import com.example.Project_24.DTOs.Response.UserResponse;
 import com.example.Project_24.Enums.Role;
 import com.example.Project_24.Enums.UserStatus;
+import com.example.Project_24.Mappers.UserMapper;
 import com.example.Project_24.Models.User;
 import com.example.Project_24.Repositories.UserRepository;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.web.bind.annotation.RequestBody;
 
 import java.util.Optional;
 
@@ -22,6 +25,7 @@ public class AuthService {
     private final UserRepository userRepository;
     private final JwtService jwtService;
     private final PasswordEncoder passwordEncoder;
+    private final UserMapper userMapper;
 
     public LoginResponse login(LoginRequest request)
     {
@@ -50,7 +54,7 @@ public class AuthService {
     }
 
 
-    public UserResponse register(RegisterRequest request)
+    public UserResponse register(@Valid @RequestBody RegisterRequest request)
     {
 
         if(userRepository.existsByEmail(request.getEmail()))
@@ -58,36 +62,13 @@ public class AuthService {
             throw new RuntimeException("Email already exists");
         }
 
-        User newUser = new User();
-
-        newUser.setEmail(request.getEmail());
-        newUser.setPassword(passwordEncoder.encode(request.getPassword()));
-        newUser.setFirstName(request.getFirstName());
-        newUser.setLastName(request.getLastName());
-        newUser.setRole(Role.ROLE_CUSTOMER);
-        newUser.setStatus(UserStatus.PENDING);
-        newUser.setBsn(request.getBsn());
-        newUser.setPhoneNumber(request.getPhoneNumber());
+        request.setPassword(passwordEncoder.encode(request.getPassword()));
+        User newUser = userMapper.mapToUser(request);
 
         User savedUser = userRepository.save(newUser);
-        return mapToUserResponse(savedUser);
+
+        return userMapper.mapToUserResponse(savedUser);
     }
 
-    private UserResponse mapToUserResponse(User user)
-    {
-        UserResponse userResponse = new UserResponse(
-                user.getId(),
-                user.getFirstName(),
-                user.getLastName(),
-                user.getEmail(),
-                user.getPhoneNumber(),
-                user.getBsn(),
-                user.getRole(),
-                user.getStatus(),
-                user.getDailyTransferLimit(),
-                user.getAbsoluteTransferLimit()
-        );
 
-        return userResponse;
-    }
 }
