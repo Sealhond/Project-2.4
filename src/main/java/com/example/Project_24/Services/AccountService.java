@@ -11,6 +11,9 @@ import com.example.Project_24.Models.Account;
 import com.example.Project_24.Models.User;
 import com.example.Project_24.Repositories.AccountRepository;
 import com.example.Project_24.Repositories.UserRepository;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import java.util.Date;
@@ -29,12 +32,9 @@ public class AccountService {
         this.userRepository = userRepository;
     }
 
-    public List<AccountResponse> getAllAccounts() {
-
-        return accountRepository.findAll()
-                .stream()
-                .map(this::toResponse)
-                .toList();
+    public Page<AccountResponse> getAllAccounts(Pageable pageable) {
+        return accountRepository.findAll(pageable)
+                .map(this::toResponse);
     }
 
     public AccountResponse createAccount(
