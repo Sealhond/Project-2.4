@@ -2,39 +2,38 @@ package com.example.Project_24.Services;
 
 import com.example.Project_24.DTOs.Request.AccountCreateRequest;
 import com.example.Project_24.DTOs.Request.AccountUpdateRequest;
-import com.example.Project_24.DTOs.Request.BalanceUpdateRequest;
 import com.example.Project_24.DTOs.Response.AccountResponse;
 import com.example.Project_24.DTOs.Response.UserSummaryResponse;
 import com.example.Project_24.Enums.AccountStatus;
 import com.example.Project_24.Enums.AccountType;
+import com.example.Project_24.Mappers.AccountMapper;
 import com.example.Project_24.Models.Account;
 import com.example.Project_24.Models.User;
 import com.example.Project_24.Repositories.AccountRepository;
 import com.example.Project_24.Repositories.UserRepository;
 import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import java.util.Date;
-import java.util.List;
 import java.util.Random;
-import java.util.UUID;
 
 @Service
 public class AccountService {
 
     private final AccountRepository accountRepository;
     private final UserRepository userRepository;
+    private final AccountMapper accountMapper;
 
-    public AccountService(AccountRepository accountRepository, UserRepository userRepository) {
+    public AccountService(AccountRepository accountRepository, UserRepository userRepository, AccountMapper accountMapper) {
         this.accountRepository = accountRepository;
         this.userRepository = userRepository;
+        this.accountMapper = accountMapper;
     }
 
     public Page<AccountResponse> getAllAccounts(Pageable pageable) {
         return accountRepository.findAll(pageable)
-                .map(this::toResponse);
+                .map(accountMapper::mapToAccountResponse);
     }
 
     public AccountResponse createAccount(
@@ -58,13 +57,13 @@ public class AccountService {
 
         account.setAccountType(request.getAccountType());
         account.setInterestRate(request.getInterestRate());
-        account.setAccountStatus(AccountStatus.CLOSED);
+        account.setAccountStatus(AccountStatus.ACTIVE);
         account.setInterestRate(request.getAccountType() == AccountType.SAVINGS ? 1.5 : 0.0);
         account.setUser(user);
 
         Account saved = accountRepository.save(account);
 
-        return toResponse(saved);
+        return accountMapper.mapToAccountResponse(saved);
     }
 
     public AccountResponse getAccountByIban(String iban) {
@@ -72,7 +71,7 @@ public class AccountService {
         Account account = accountRepository.findById(iban)
                 .orElseThrow(() -> new RuntimeException( "Account not found"));
 
-        return toResponse(account);
+        return accountMapper.mapToAccountResponse(account);
     }
 
     public AccountResponse updateAccount(String iban, AccountUpdateRequest request) {
@@ -90,24 +89,22 @@ public class AccountService {
 
         Account updatedAccount = accountRepository.save(account);
 
-        return toResponse(updatedAccount);
+        return accountMapper.mapToAccountResponse(updatedAccount);
     }
 
     public void deleteAccount(String iban) {
 
-        if (!accountRepository.existsById(iban)) {
-            throw new RuntimeException("Account not found");
-        }
-
-        accountRepository.deleteById(iban);
-    }
-
-    public void updateBalance(String iban, BalanceUpdateRequest request) {
-
         Account account = accountRepository.findById(iban)
                 .orElseThrow(() -> new RuntimeException("Account not found"));
 
-        Double newBalance = account.getBalance() + request.getAmount();
+        account.setAccountStatus(AccountStatus.CLOSED);
+    }
+
+    public void updateBalance(String iban, Double amount) {
+        Account account = accountRepository.findById(iban)
+                .orElseThrow(() -> new RuntimeException("Account not found"));
+
+        Double newBalance = account.getBalance() + amount;
 
         account.setBalance(newBalance);
 
@@ -120,34 +117,7 @@ public class AccountService {
 
         return accountRepository.findByUserFirstNameContainingIgnoreCaseAndUserLastNameContainingIgnoreCase(
                         first, last, pageable)
-                .map(this::toResponse);
-    }
-
-    private AccountResponse toResponse(Account account) {
-
-        AccountResponse response = new AccountResponse();
-
-        response.setIBAN(account.getIBAN());
-        response.setAccountName(account.getAccountName());
-        response.setBalance(account.getBalance());
-        response.setAccountLimit(account.getAccountLimit());
-        response.setDateCreated(account.getDateCreated());
-        response.setInterestRate(account.getInterestRate());
-        response.setAccountType(account.getAccountType());
-        response.setAccountStatus(account.getAccountStatus());
-
-        if (account.getUser() != null) {
-
-            UserSummaryResponse userResponse = new UserSummaryResponse();
-
-            userResponse.setId(account.getUser().getId());
-            userResponse.setFirstName(account.getUser().getFirstName());
-            userResponse.setLastName(account.getUser().getLastName());
-
-            response.setUser(userResponse);
-        }
-
-        return response;
+                .map(accountMapper::mapToAccountResponse);
     }
 
     public String generateIban() {
