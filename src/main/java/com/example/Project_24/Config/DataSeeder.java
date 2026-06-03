@@ -94,7 +94,7 @@ public class DataSeeder implements ApplicationRunner {
             customerAccount.setAccountName("Customer Main Account");
             customerAccount.setBalance(0.0);
             customerAccount.setAccountLimit(-1000.0);
-            customerAccount.setAccountStatus(AccountStatus.CLOSED);
+            customerAccount.setAccountStatus(AccountStatus.ACTIVE);
             customerAccount.setUser(customer);
 
             accountRepository.save(customerAccount);
