@@ -114,12 +114,13 @@ public class AccountService {
         accountRepository.save(account);
     }
 
-    public List<String> getAccountsByUser(String firstName, String lastName) {
+    public Page<AccountResponse> getAccountsByUser(String firstName, String lastName, Pageable pageable) {
+        String first = firstName == null ? "" : firstName;
+        String last = lastName == null ? "" : lastName;
 
-        return accountRepository.findByUserFirstNameContainingIgnoreCaseAndUserLastNameContainingIgnoreCase(firstName, lastName)
-                .stream()
-                .map(Account::getIBAN)
-                .toList();
+        return accountRepository.findByUserFirstNameContainingIgnoreCaseAndUserLastNameContainingIgnoreCase(
+                        first, last, pageable)
+                .map(this::toResponse);
     }
 
     private AccountResponse toResponse(Account account) {
@@ -150,6 +151,16 @@ public class AccountService {
     }
 
     public String generateIban() {
+        String iban;
+
+        do {
+            iban = generateRandomIban();
+        } while (accountRepository.existsById(iban));
+
+        return iban;
+    }
+
+    private String generateRandomIban() {
         Random random = new Random();
         StringBuilder sb = new StringBuilder("NL69SCAM");
 
