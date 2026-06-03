@@ -65,8 +65,13 @@ public class AccountController {
     }
 
     @GetMapping("/user")
-    public ResponseEntity<List<String>> getAccountsByUser(@RequestParam String firstName, @RequestParam String lastName) {
-
-        return ResponseEntity.ok(accountService.getAccountsByUser(firstName, lastName));
+    public ResponseEntity<Page<AccountResponse>> getAccountsByUser(
+            @RequestParam(required = false) String firstName,
+            @RequestParam(required = false) String lastName,
+            Pageable pageable
+    ) {
+        return ResponseEntity.ok(
+                accountService.getAccountsByUser(firstName, lastName, pageable)
+        );
     }
 }
