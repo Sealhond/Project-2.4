@@ -3,10 +3,13 @@ package com.example.Project_24.Services;
 import com.example.Project_24.DTOs.Request.UpdateUserRequest;
 import com.example.Project_24.DTOs.Response.UserResponse;
 import com.example.Project_24.Enums.UserStatus;
+import com.example.Project_24.Mappers.UserMapper;
 import com.example.Project_24.Models.User;
 import com.example.Project_24.Repositories.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.BeanUtils;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
@@ -21,18 +24,12 @@ import java.util.Optional;
 public class UserService {
 
     private final UserRepository userRepository;
+    private final UserMapper userMapper;
 
     //RETURN ALL USERS (niet paginated) ------
-    public List<UserResponse> getAllUsers() {
-
-        List<User> users = userRepository.findAll();
-        List<UserResponse> userResponseList = new ArrayList<>();
-
-        for (User user : users) {
-            userResponseList.add(mapToUserResponse(user));
-        }
-
-        return userResponseList;
+    public Page<UserResponse> getAllUsers(Pageable pageable) {
+        return userRepository.findAll(pageable)
+                .map(userMapper::mapToUserResponse);
     }
 
     //GET USER BY ID ---------------------------
@@ -44,7 +41,7 @@ public class UserService {
             throw new RuntimeException("User not found");
         }
 
-        return mapToUserResponse(user.get());
+        return userMapper.mapToUserResponse(user.get());
     }
 
     //UPDATE USER --------------------------
@@ -53,19 +50,10 @@ public class UserService {
         User existing = userRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("User not found"));
 
-        //TODO: ik heb het gevoel dat dit anders kan
-        existing.setFirstName(request.getFirstName());
-        existing.setLastName(request.getLastName());
-        existing.setEmail(request.getEmail());
-        existing.setPhoneNumber(request.getPhoneNumber());
-        existing.setBsn(request.getBsn());
-        existing.setStatus(request.getStatus());
-        existing.setDailyTransferLimit(request.getDailyTransferLimit());
-        existing.setAbsoluteTransferLimit(request.getAbsoluteTransferLimit());
-
+        User updated = userMapper.mapToExistingUser(request, existing);
         User savedUser = userRepository.save(existing);
 
-        return mapToUserResponse(savedUser);
+        return userMapper.mapToUserResponse(savedUser);
     }
 
 
@@ -79,19 +67,4 @@ public class UserService {
         userRepository.save(user);
     }
 
-
-    private UserResponse mapToUserResponse(User user) {
-        return new UserResponse(
-                user.getId(),
-                user.getFirstName(),
-                user.getLastName(),
-                user.getEmail(),
-                user.getPhoneNumber(),
-                user.getBsn(),
-                user.getRole(),
-                user.getStatus(),
-                user.getDailyTransferLimit(),
-                user.getAbsoluteTransferLimit()
-        );
-    }
 }
