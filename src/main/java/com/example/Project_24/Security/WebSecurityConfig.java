@@ -58,7 +58,7 @@ public class WebSecurityConfig {
 
         CorsConfiguration config = new CorsConfiguration();
 
-        config.setAllowedOrigins(List.of("http://localhost:5173","https://m3rel.github.io/project-2.4-frontend"));
+        config.setAllowedOrigins(List.of("http://localhost:5173","https://m3rel.github.io"));
         config.setAllowedMethods(List.of("GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"));
         config.setAllowedHeaders(List.of("*"));
         config.setAllowCredentials(true);
