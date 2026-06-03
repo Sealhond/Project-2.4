@@ -1,8 +1,11 @@
 package com.example.Project_24.DTOs.Response;
 
 import com.example.Project_24.Enums.TransactionType;
+import lombok.Data;
+
 import java.time.LocalDateTime;
 
+@Data
 public class TransactionResponse {
     private Long id;
     private String senderIban;
@@ -10,5 +13,5 @@ public class TransactionResponse {
     private Double amount;
     private LocalDateTime timestamp;
     private TransactionType type;
-    private String initiatedByEmail;
+    private UserSummaryResponse initiatedBy;
 }
