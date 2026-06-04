@@ -56,7 +56,6 @@ public class AccountService {
         account.setDateCreated(new Date());
 
         account.setAccountType(request.getAccountType());
-        account.setInterestRate(request.getInterestRate());
         account.setAccountStatus(AccountStatus.ACTIVE);
         account.setInterestRate(request.getAccountType() == AccountType.SAVINGS ? 1.5 : 0.0);
         account.setUser(user);
