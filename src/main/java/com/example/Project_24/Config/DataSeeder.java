@@ -75,7 +75,7 @@ public class DataSeeder implements ApplicationRunner {
                 user.setRole(Role.ROLE_CUSTOMER);
                 user.setStatus(UserStatus.APPROVED);
                 user.setDailyTransferLimit(1000.00);
-                user.setAbsoluteTransferLimit(50.00);
+                //user.setAbsoluteTransferLimit(50.00);
                 userRepository.save(user);
             }
 

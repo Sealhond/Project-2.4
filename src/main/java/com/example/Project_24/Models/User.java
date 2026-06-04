@@ -35,7 +35,7 @@ public class User {
     private UserStatus status;
 
     private Double dailyTransferLimit;
-    private Double absoluteTransferLimit;
+   //private Double absoluteTransferLimit;
 
     @OneToMany(mappedBy = "user")
     private List<Account> accounts = new ArrayList<>();
