@@ -1,6 +1,7 @@
 package com.example.Project_24.Config;
 
 import com.example.Project_24.Enums.AccountStatus;
+import com.example.Project_24.Enums.AccountType;
 import com.example.Project_24.Enums.Role;
 import com.example.Project_24.Enums.UserStatus;
 import com.example.Project_24.Models.Account;
@@ -46,7 +47,7 @@ public class DataSeeder implements ApplicationRunner {
             customer.setRole(Role.ROLE_CUSTOMER);
             customer.setFirstName("Jan");
             customer.setLastName("Smit");
-
+            customer.setDailyTransferLimit(1000.00);
             userRepository.save(customer);
 
             String[][] fakeUsers = {
@@ -92,12 +93,24 @@ public class DataSeeder implements ApplicationRunner {
             Account customerAccount = new Account();
             customerAccount.setIBAN(accountService.generateIban());
             customerAccount.setAccountName("Customer Main Account");
-            customerAccount.setBalance(0.0);
+            customerAccount.setBalance(500.0);
             customerAccount.setAccountLimit(-1000.0);
-            customerAccount.setAccountStatus(AccountStatus.CLOSED);
+            customerAccount.setAccountStatus(AccountStatus.ACTIVE);
+            customerAccount.setAccountType(AccountType.CHECKING);
             customerAccount.setUser(customer);
 
             accountRepository.save(customerAccount);
+
+            Account receiverAccount = new Account();
+            receiverAccount.setIBAN(accountService.generateIban());
+            receiverAccount.setAccountName("Receiver Test Account");
+            receiverAccount.setBalance(100.0);
+            receiverAccount.setAccountLimit(-500.0);
+            receiverAccount.setAccountStatus(AccountStatus.ACTIVE);
+            receiverAccount.setAccountType(AccountType.CHECKING);
+            receiverAccount.setUser(employee); // different user so transfer makes sense
+
+            accountRepository.save(receiverAccount);
 
             System.out.println("Database seeded!");
         }
