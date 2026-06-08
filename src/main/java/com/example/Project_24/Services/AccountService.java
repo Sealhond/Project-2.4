@@ -79,6 +79,10 @@ public class AccountService {
         Account account = accountRepository.findById(iban)
                 .orElseThrow(() -> new RuntimeException("Account not found"));
 
+        if (request.getAccountName() != null) {
+            account.setAccountName(request.getAccountName());
+        }
+
         if (request.getAccountLimit() != null) {
             account.setAccountLimit(request.getAccountLimit());
         }
