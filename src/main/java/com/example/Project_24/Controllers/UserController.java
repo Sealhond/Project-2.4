@@ -9,6 +9,7 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -26,6 +27,7 @@ public class UserController {
 
     //GET ALL USERS
     @GetMapping
+    @PreAuthorize("hasRole('ROLE_EMPLOYEE')")
     public ResponseEntity<Page<UserResponse>> getAllUsers(
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "10") int size
@@ -36,6 +38,7 @@ public class UserController {
 
     //GET BY ID
     @GetMapping("/{id}")
+    @PreAuthorize("hasRole('ROLE_EMPLOYEE')")
     public ResponseEntity<UserResponse> getUserById(@PathVariable Long id) {
 
         return ResponseEntity.ok(userService.getUserById(id));
@@ -44,6 +47,7 @@ public class UserController {
 
     //UPDATE USER
     @PutMapping("/{id}")
+    @PreAuthorize("hasRole('ROLE_EMPLOYEE')")
     public ResponseEntity<UserResponse> updateUser(@PathVariable Long id, @RequestBody UpdateUserRequest request) {
 
         return ResponseEntity.ok(userService.updateUser(id, request));
@@ -52,6 +56,7 @@ public class UserController {
 
     //DELETE USER
     @DeleteMapping("/{id}")
+    @PreAuthorize("hasRole('ROLE_EMPLOYEE')")
     public ResponseEntity<Void> deleteUser(@PathVariable Long id)
     {
         userService.deleteUser(id);

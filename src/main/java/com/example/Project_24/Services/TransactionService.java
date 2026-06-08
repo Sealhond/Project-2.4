@@ -1,5 +1,6 @@
 package com.example.Project_24.Services;
 
+import com.example.Project_24.DTOs.Filters.TransactionFilterParams;
 import com.example.Project_24.DTOs.Request.DepositRequest;
 import com.example.Project_24.DTOs.Request.TransferRequest;
 import com.example.Project_24.DTOs.Request.WithdrawalRequest;
@@ -13,9 +14,11 @@ import com.example.Project_24.Models.User;
 import com.example.Project_24.Repositories.AccountRepository;
 import com.example.Project_24.Repositories.TransactionRepository;
 import com.example.Project_24.Repositories.UserRepository;
+import com.example.Project_24.Specifications.TransactionSpecification;
 import jakarta.transaction.Transactional;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
@@ -146,9 +149,37 @@ public class TransactionService
                 .map(transactionMapper::mapToTransactionResponse);
     }
 
-    //TODO:
     //GET /transactions/{iban} + filtering
-    //public List<TransactionResponse> getTransactionsByIban(String iban, TransactionFilterParams filters) {}
+    public Page<TransactionResponse> getTransactionsByIban(String iban, TransactionFilterParams filters, Pageable pageable) {
+
+        Specification<Transaction> spec = Specification.where(TransactionSpecification.hasIban(iban));
+
+        if (filters != null) {
+            if (filters.getStartDate() != null) {
+                spec = spec.and(TransactionSpecification.afterDate(filters.getStartDate()));
+            }
+
+            if (filters.getEndDate() != null) {
+                spec = spec.and(TransactionSpecification.beforeDate(filters.getEndDate()));
+            }
+
+            if (filters.getMinAmount() != null) {
+                spec = spec.and(TransactionSpecification.minAmount(filters.getMinAmount()));
+            }
+
+            if (filters.getMaxAmount() != null) {
+                spec = spec.and(TransactionSpecification.maxAmount(filters.getMaxAmount()));
+            }
+
+            if (filters.getOtherIban() != null) {
+                spec = spec.and(TransactionSpecification.otherIban(filters.getOtherIban()));
+            }
+        }
+
+        return transactionRepository.findAll(spec, pageable)
+                .map(transactionMapper::mapToTransactionResponse);
+
+    }
 
 
 

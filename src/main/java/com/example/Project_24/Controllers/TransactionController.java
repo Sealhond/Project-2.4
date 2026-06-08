@@ -1,5 +1,6 @@
 package com.example.Project_24.Controllers;
 
+import com.example.Project_24.DTOs.Filters.TransactionFilterParams;
 import com.example.Project_24.DTOs.Request.DepositRequest;
 import com.example.Project_24.DTOs.Request.TransferRequest;
 import com.example.Project_24.DTOs.Request.WithdrawalRequest;
@@ -10,6 +11,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -26,6 +28,7 @@ public class TransactionController
     }
 
     @PostMapping("/transfer")
+    @PreAuthorize("hasRole('ROLE_EMPLOYEE') or hasRole('ROLE_CUSTOMER')")
     public ResponseEntity<TransactionResponse> createTransfer(@RequestBody TransferRequest request) {
 
         TransactionResponse transactionResponse = transactionService.transfer(request);
@@ -33,6 +36,7 @@ public class TransactionController
     }
 
     @PostMapping("/withdrawal")
+    @PreAuthorize("hasRole('ROLE_EMPLOYEE') or hasPermission(#request.senderIban, 'account', 'access')")
     public ResponseEntity<TransactionResponse> createWithdrawal(@RequestBody WithdrawalRequest request) {
 
         TransactionResponse transactionResponse = transactionService.withdrawal(request);
@@ -41,12 +45,14 @@ public class TransactionController
     }
 
     @PostMapping("/deposit")
+    @PreAuthorize("hasRole('ROLE_EMPLOYEE') or hasPermission(#request.receiverIban, 'account', 'access')")
     public ResponseEntity<TransactionResponse> createDeposit(@RequestBody DepositRequest request) {
         TransactionResponse transactionResponse = transactionService.deposit(request);
         return ResponseEntity.status(HttpStatus.CREATED).body(transactionResponse);
     }
 
     @GetMapping
+    @PreAuthorize("hasRole('ROLE_EMPLOYEE')")
     public ResponseEntity<Page<TransactionResponse>> getAllTransactions(Pageable pageable)
     {
         return ResponseEntity.ok(transactionService.getAllTransactions(pageable));
@@ -55,8 +61,13 @@ public class TransactionController
 
     //TODO get per iban (met filter specification enzo)
     @GetMapping("/{iban}")
-    public ResponseEntity<Page<TransactionResponse>> getAllTransactions(@PathVariable("iban") String iban, Pageable pageable) {
-        return null;
+    @PreAuthorize("hasRole('ROLE_EMPLOYEE') or hasPermission(#request.senderIban, 'account', 'access')")
+    public ResponseEntity<Page<TransactionResponse>> getTransactionsByIban(
+            @PathVariable String iban,
+            @ModelAttribute TransactionFilterParams filters,
+            Pageable pageable) {
+
+        return ResponseEntity.ok(transactionService.getTransactionsByIban(iban, filters, pageable));
     }
 
 
