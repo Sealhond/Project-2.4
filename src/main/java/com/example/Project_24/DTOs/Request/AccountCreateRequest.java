@@ -13,6 +13,4 @@ public class AccountCreateRequest {
     private AccountType accountType;
 
     private Double accountLimit;
-
-    private Double interestRate;
 }
