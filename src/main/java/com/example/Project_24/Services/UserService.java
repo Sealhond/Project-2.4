@@ -7,6 +7,7 @@ import com.example.Project_24.Mappers.UserMapper;
 import com.example.Project_24.Models.User;
 import com.example.Project_24.Repositories.UserRepository;
 import lombok.RequiredArgsConstructor;
+import org.jspecify.annotations.Nullable;
 import org.springframework.beans.BeanUtils;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -27,10 +28,17 @@ public class UserService {
     private final UserMapper userMapper;
 
     //RETURN ALL USERS (niet paginated) ------
-    public Page<UserResponse> getAllUsers(Pageable pageable) {
+    public Page<UserResponse> getAllUsers(Pageable pageable, Boolean isPending) {
+        if (isPending != null && isPending) {
+            return userRepository.findByStatusAndAccountsIsEmpty(UserStatus.PENDING, pageable)
+                    .map(userMapper::mapToUserResponse);
+
+        }
         return userRepository.findAll(pageable)
                 .map(userMapper::mapToUserResponse);
     }
+
+
 
     //GET USER BY ID ---------------------------
     public UserResponse getUserById(Long id) {
@@ -66,5 +74,4 @@ public class UserService {
         user.setStatus(UserStatus.CLOSED);  //set status to closed
         userRepository.save(user);
     }
-
 }

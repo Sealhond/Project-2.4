@@ -13,9 +13,11 @@ import com.example.Project_24.Repositories.AccountRepository;
 import com.example.Project_24.Repositories.UserRepository;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
 import java.util.Date;
+import java.util.List;
 import java.util.Random;
 
 @Service
@@ -140,4 +142,16 @@ public class AccountService {
 
         return sb.toString();
     }
+
+    public List<AccountResponse> getMyAccounts() {
+        String email = SecurityContextHolder.getContext().getAuthentication().getName();
+        User user = userRepository.findByEmail(email)
+                .orElseThrow(() -> new RuntimeException("User not found"));
+
+        return accountRepository.findByUser(user)
+                .stream()
+                .map(accountMapper::mapToAccountResponse)
+                .toList();
+    }
+
 }

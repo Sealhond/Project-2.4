@@ -8,7 +8,10 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
 
 @RestController
 @RequestMapping("/accounts")
@@ -63,4 +66,13 @@ public class AccountController {
                 accountService.getAccountsByUser(firstName, lastName, pageable)
         );
     }
+
+    @GetMapping("/my")
+    @PreAuthorize("hasRole('ROLE_CUSTOMER')")
+    public ResponseEntity<List<AccountResponse>> getMyAccounts()
+    {
+        return ResponseEntity.ok(accountService.getMyAccounts());
+    }
+
+
 }
