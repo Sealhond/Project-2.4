@@ -4,20 +4,25 @@ import com.example.Project_24.DTOs.Request.AccountCreateRequest;
 import com.example.Project_24.DTOs.Request.AccountUpdateRequest;
 import com.example.Project_24.DTOs.Response.AccountResponse;
 import com.example.Project_24.Services.AccountService;
+import com.example.Project_24.Services.JwtService;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
+
 @RestController
 @RequestMapping("/accounts")
 public class AccountController {
 
     private final AccountService accountService;
+    private final JwtService jwtService;
 
-    public AccountController(AccountService accountService) {
+    public AccountController(AccountService accountService, JwtService jwtService) {
         this.accountService = accountService;
+        this.jwtService = jwtService;
     }
 
     @GetMapping
@@ -60,7 +65,20 @@ public class AccountController {
             Pageable pageable
     ) {
         return ResponseEntity.ok(
-                accountService.getAccountsByUser(firstName, lastName, pageable)
+                accountService.getAccountsByUserName(firstName, lastName, pageable)
+        );
+    }
+
+    @GetMapping("/me")
+    public ResponseEntity<List<AccountResponse>> getMyAccounts(
+            @RequestHeader("Authorization") String authHeader
+    ) {
+        String token = authHeader.substring(7);
+
+        Long userId = jwtService.extractUserId(token);
+
+        return ResponseEntity.ok(
+                accountService.getAccountsByUserId(userId)
         );
     }
 }

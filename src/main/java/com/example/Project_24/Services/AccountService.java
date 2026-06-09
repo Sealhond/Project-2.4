@@ -16,6 +16,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import java.util.Date;
+import java.util.List;
 import java.util.Random;
 
 @Service
@@ -114,7 +115,7 @@ public class AccountService {
         accountRepository.save(account);
     }
 
-    public Page<AccountResponse> getAccountsByUser(String firstName, String lastName, Pageable pageable) {
+    public Page<AccountResponse> getAccountsByUserName(String firstName, String lastName, Pageable pageable) {
         String first = firstName == null ? "" : firstName;
         String last = lastName == null ? "" : lastName;
 
@@ -142,5 +143,12 @@ public class AccountService {
         }
 
         return sb.toString();
+    }
+
+    public List<AccountResponse> getAccountsByUserId(Long userId) {
+        return accountRepository.findByUserId(userId)
+                .stream()
+                .map(accountMapper::mapToAccountResponse)
+                .toList();
     }
 }

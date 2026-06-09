@@ -43,6 +43,10 @@ public class JwtService {
         return getClaims(token).getSubject();
     }
 
+    public Long extractUserId(String token) {
+        return getClaims(token).get("userId", Long.class);
+    }
+
     public String extractRole(String token) {
         return getClaims(token).get("role", String.class);
     }
