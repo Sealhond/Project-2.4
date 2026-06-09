@@ -44,8 +44,8 @@ public class WebSecurityConfig {
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers("/auth/**").permitAll()
                         //.requestMatchers("/users/**").hasRole("EMPLOYEE")
+                        .requestMatchers("/accounts/me").hasAnyRole("EMPLOYEE", "CUSTOMER")
                         //.requestMatchers("/accounts/**").hasRole("EMPLOYEE")
-
                         .anyRequest().authenticated()
                 )
 
