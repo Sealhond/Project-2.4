@@ -1,11 +1,13 @@
 package com.example.Project_24.Repositories;
 
 import com.example.Project_24.Models.Account;
+import com.example.Project_24.Models.User;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 import java.util.List;
+import java.util.Optional;
 
 public interface AccountRepository extends JpaRepository<Account, String> {
 
@@ -14,4 +16,7 @@ public interface AccountRepository extends JpaRepository<Account, String> {
             String lastName,
             Pageable pageable
     );
+
+    List<Account> user(User user);
+    List<Account> findByUserId(Long userId);
 }
