@@ -22,8 +22,8 @@ public class UserMapper {
                 user.getBsn(),
                 user.getRole(),
                 user.getStatus(),
-                user.getDailyTransferLimit(),
-                user.getAbsoluteTransferLimit()
+                user.getDailyTransferLimit()
+              //  user.getAbsoluteTransferLimit()
         );
 
         return userResponse;
@@ -54,7 +54,7 @@ public class UserMapper {
         existing.setBsn(request.getBsn());
         existing.setStatus(request.getStatus());
         existing.setDailyTransferLimit(request.getDailyTransferLimit());
-        existing.setAbsoluteTransferLimit(request.getAbsoluteTransferLimit());
+       // existing.setAbsoluteTransferLimit(request.getAbsoluteTransferLimit());
 
         return existing;
     }

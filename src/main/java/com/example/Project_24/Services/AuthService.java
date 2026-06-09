@@ -54,7 +54,7 @@ public class AuthService {
     }
 
 
-    public UserResponse register(@Valid @RequestBody RegisterRequest request)
+    public UserResponse register(@RequestBody RegisterRequest request)
     {
 
         if(userRepository.existsByEmail(request.getEmail()))

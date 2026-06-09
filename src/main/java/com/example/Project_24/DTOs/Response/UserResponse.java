@@ -22,5 +22,5 @@ public class UserResponse {
     private Role role;
     private UserStatus status;
     private Double dailyTransferLimit;
-    private Double absoluteTransferLimit;
+    //private Double absoluteTransferLimit;
 }
