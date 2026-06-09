@@ -21,12 +21,6 @@ public class JwtService {
     @Value("${jwt.secret}")
     private String secretKey;
 
-    private final CustomUserDetailsService myUserDetailsService;
-
-    public JwtService(CustomUserDetailsService myUserDetailsService) {
-        this.myUserDetailsService = myUserDetailsService;
-    }
-
     //is called after login, generates token with user info inse
     public String generateToken(User user) {
         return Jwts.builder()
@@ -68,24 +62,4 @@ public class JwtService {
         return Keys.hmacShaKeyFor(secretKey.getBytes());
     }
 
-    public Authentication getAuthentication(String token) {
-        try {
-            Claims claims = Jwts.parser()
-                    .verifyWith(getSigningKey())
-                    .build()
-                    .parseSignedClaims(token)
-                    .getPayload();
-
-            String email = claims.getSubject();
-            UserDetails userDetails = myUserDetailsService.loadUserByUsername(email);
-
-            return new UsernamePasswordAuthenticationToken(
-                    userDetails,
-                    "",
-                    userDetails.getAuthorities()
-            );
-        } catch (JwtException | IllegalArgumentException e) {
-            throw new JwtException("Bearer token not valid");
-        }
-    }
 }

@@ -28,7 +28,7 @@ public class TransactionController
     }
 
     @PostMapping("/transfer")
-    @PreAuthorize("hasRole('ROLE_EMPLOYEE') or hasRole('ROLE_CUSTOMER')")
+    @PreAuthorize("hasRole('ROLE_EMPLOYEE') or hasPermission(#request.senderIban, 'account', 'access')")
     public ResponseEntity<TransactionResponse> createTransfer(@RequestBody TransferRequest request) {
 
         TransactionResponse transactionResponse = transactionService.transfer(request);
@@ -61,7 +61,7 @@ public class TransactionController
 
     //TODO get per iban (met filter specification enzo)
     @GetMapping("/{iban}")
-    @PreAuthorize("hasRole('ROLE_EMPLOYEE') or hasPermission(#request.senderIban, 'account', 'access')")
+    @PreAuthorize("hasRole('ROLE_EMPLOYEE') or hasPermission(#iban, 'account', 'access')")
     public ResponseEntity<Page<TransactionResponse>> getTransactionsByIban(
             @PathVariable String iban,
             @ModelAttribute TransactionFilterParams filters,
