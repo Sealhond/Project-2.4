@@ -67,12 +67,6 @@ public class AccountController {
         );
     }
 
-    @GetMapping("/my")
-    @PreAuthorize("hasRole('ROLE_CUSTOMER')")
-    public ResponseEntity<List<AccountResponse>> getMyAccounts()
-    {
-        return ResponseEntity.ok(accountService.getMyAccounts());
-    }
 
 
 }

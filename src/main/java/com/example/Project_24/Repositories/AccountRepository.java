@@ -15,7 +15,6 @@ public interface AccountRepository extends JpaRepository<Account, String> {
             String lastName,
             Pageable pageable
     );
-
-    List<Account> findByUser(User user);
+    
 
 }

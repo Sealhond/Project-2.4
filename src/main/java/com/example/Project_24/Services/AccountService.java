@@ -143,15 +143,5 @@ public class AccountService {
         return sb.toString();
     }
 
-    public List<AccountResponse> getMyAccounts() {
-        String email = SecurityContextHolder.getContext().getAuthentication().getName();
-        User user = userRepository.findByEmail(email)
-                .orElseThrow(() -> new RuntimeException("User not found"));
-
-        return accountRepository.findByUser(user)
-                .stream()
-                .map(accountMapper::mapToAccountResponse)
-                .toList();
-    }
 
 }
