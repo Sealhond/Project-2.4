@@ -3,6 +3,7 @@ package com.example.Project_24.Services;
 import com.example.Project_24.DTOs.Request.AccountCreateRequest;
 import com.example.Project_24.DTOs.Request.AccountUpdateRequest;
 import com.example.Project_24.DTOs.Response.AccountResponse;
+import com.example.Project_24.DTOs.Response.IbanResponse;
 import com.example.Project_24.DTOs.Response.UserSummaryResponse;
 import com.example.Project_24.Enums.AccountStatus;
 import com.example.Project_24.Enums.AccountType;
@@ -11,11 +12,13 @@ import com.example.Project_24.Models.Account;
 import com.example.Project_24.Models.User;
 import com.example.Project_24.Repositories.AccountRepository;
 import com.example.Project_24.Repositories.UserRepository;
+import org.jspecify.annotations.Nullable;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import java.util.Date;
+import java.util.List;
 import java.util.Random;
 
 @Service
@@ -56,7 +59,6 @@ public class AccountService {
         account.setDateCreated(new Date());
 
         account.setAccountType(request.getAccountType());
-        account.setInterestRate(request.getInterestRate());
         account.setAccountStatus(AccountStatus.ACTIVE);
         account.setInterestRate(request.getAccountType() == AccountType.SAVINGS ? 1.5 : 0.0);
         account.setUser(user);
@@ -78,6 +80,10 @@ public class AccountService {
 
         Account account = accountRepository.findById(iban)
                 .orElseThrow(() -> new RuntimeException("Account not found"));
+
+        if (request.getAccountName() != null) {
+            account.setAccountName(request.getAccountName());
+        }
 
         if (request.getAccountLimit() != null) {
             account.setAccountLimit(request.getAccountLimit());
@@ -111,7 +117,7 @@ public class AccountService {
         accountRepository.save(account);
     }
 
-    public Page<AccountResponse> getAccountsByUser(String firstName, String lastName, Pageable pageable) {
+    public Page<AccountResponse> getAccountsByUserName(String firstName, String lastName, Pageable pageable) {
         String first = firstName == null ? "" : firstName;
         String last = lastName == null ? "" : lastName;
 
@@ -139,5 +145,20 @@ public class AccountService {
         }
 
         return sb.toString();
+    }
+
+    public List<AccountResponse> getAccountsByUserId(Long userId) {
+        return accountRepository.findByUserId(userId)
+                .stream()
+                .map(accountMapper::mapToAccountResponse)
+                .toList();
+    }
+
+    public Page<IbanResponse> getIbansByUserName(String firstName, String lastName, Pageable pageable) {
+
+        String first = firstName == null ? "" : firstName;
+        String last = lastName == null ? "" : lastName;
+
+        return accountRepository.searchIbans(first, last, AccountType.CHECKING, pageable);
     }
 }
