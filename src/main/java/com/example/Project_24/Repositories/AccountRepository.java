@@ -1,10 +1,14 @@
 package com.example.Project_24.Repositories;
 
+import com.example.Project_24.DTOs.Response.IbanResponse;
+import com.example.Project_24.Enums.AccountType;
 import com.example.Project_24.Models.Account;
 import com.example.Project_24.Models.User;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 
 import java.util.List;
 import java.util.Optional;
@@ -19,4 +23,26 @@ public interface AccountRepository extends JpaRepository<Account, String> {
 
     List<Account> user(User user);
     List<Account> findByUserId(Long userId);
+
+    @Query("""
+    SELECT new com.example.Project_24.DTOs.Response.IbanResponse(
+        a.IBAN,
+        new com.example.Project_24.DTOs.Response.UserSummaryResponse(
+            u.id,
+            u.firstName,
+            u.lastName
+        )
+    )
+    FROM Account a
+    JOIN a.user u
+    WHERE LOWER(u.firstName) LIKE LOWER(CONCAT('%', :firstName, '%'))
+    AND LOWER(u.lastName) LIKE LOWER(CONCAT('%', :lastName, '%'))
+    AND a.accountType = :type
+    """)
+    Page<IbanResponse> searchIbans(
+            @Param("firstName") String firstName,
+            @Param("lastName") String lastName,
+            @Param("type") AccountType type,
+            Pageable pageable
+    );
 }
