@@ -3,6 +3,7 @@ package com.example.Project_24.Services;
 import com.example.Project_24.DTOs.Request.AccountCreateRequest;
 import com.example.Project_24.DTOs.Request.AccountUpdateRequest;
 import com.example.Project_24.DTOs.Response.AccountResponse;
+import com.example.Project_24.DTOs.Response.IbanResponse;
 import com.example.Project_24.DTOs.Response.UserSummaryResponse;
 import com.example.Project_24.Enums.AccountStatus;
 import com.example.Project_24.Enums.AccountType;
@@ -11,6 +12,7 @@ import com.example.Project_24.Models.Account;
 import com.example.Project_24.Models.User;
 import com.example.Project_24.Repositories.AccountRepository;
 import com.example.Project_24.Repositories.UserRepository;
+import org.jspecify.annotations.Nullable;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
@@ -150,5 +152,13 @@ public class AccountService {
                 .stream()
                 .map(accountMapper::mapToAccountResponse)
                 .toList();
+    }
+
+    public Page<IbanResponse> getIbansByUserName(String firstName, String lastName, Pageable pageable) {
+
+        String first = firstName == null ? "" : firstName;
+        String last = lastName == null ? "" : lastName;
+
+        return accountRepository.searchIbans(first, last, AccountType.CHECKING, pageable);
     }
 }

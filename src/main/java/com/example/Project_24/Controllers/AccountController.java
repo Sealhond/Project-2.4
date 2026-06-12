@@ -3,6 +3,7 @@ package com.example.Project_24.Controllers;
 import com.example.Project_24.DTOs.Request.AccountCreateRequest;
 import com.example.Project_24.DTOs.Request.AccountUpdateRequest;
 import com.example.Project_24.DTOs.Response.AccountResponse;
+import com.example.Project_24.DTOs.Response.IbanResponse;
 import com.example.Project_24.Services.AccountService;
 import com.example.Project_24.Services.JwtService;
 import org.springframework.data.domain.Page;
@@ -27,6 +28,7 @@ public class AccountController {
     }
 
     @GetMapping
+    @PreAuthorize("hasRole('ROLE_EMPLOYEE')")
     public ResponseEntity<Page<AccountResponse>> getAllAccounts(Pageable pageable) {
         return ResponseEntity.ok(accountService.getAllAccounts(pageable));
     }
@@ -46,12 +48,14 @@ public class AccountController {
     }
 
     @PatchMapping("/{iban}")
+    @PreAuthorize("hasRole('ROLE_EMPLOYEE')")
     public ResponseEntity<AccountResponse> updateAccount(@PathVariable String iban, @RequestBody AccountUpdateRequest request) {
 
         return ResponseEntity.ok(accountService.updateAccount(iban, request));
     }
 
     @DeleteMapping("/{iban}")
+    @PreAuthorize("hasRole('ROLE_EMPLOYEE')")
     public ResponseEntity<Void> deleteAccount(@PathVariable String iban) {
 
         accountService.deleteAccount(iban);
@@ -59,7 +63,9 @@ public class AccountController {
         return ResponseEntity.noContent().build();
     }
 
+    // I kept this to be used by employees
     @GetMapping("/user")
+    @PreAuthorize("hasRole('ROLE_EMPLOYEE')")
     public ResponseEntity<Page<AccountResponse>> getAccountsByUser(
             @RequestParam(required = false) String firstName,
             @RequestParam(required = false) String lastName,
@@ -67,6 +73,18 @@ public class AccountController {
     ) {
         return ResponseEntity.ok(
                 accountService.getAccountsByUserName(firstName, lastName, pageable)
+        );
+    }
+
+    // The actual endpoint for customers to get Iban by User
+    @GetMapping("/userIban")
+    public ResponseEntity<Page<IbanResponse>> getIbansByUser(
+            @RequestParam(required = false) String firstName,
+            @RequestParam(required = false) String lastName,
+            Pageable pageable
+    ) {
+        return ResponseEntity.ok(
+                accountService.getIbansByUserName(firstName, lastName, pageable)
         );
     }
 
