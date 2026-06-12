@@ -27,7 +27,7 @@ public class UserService {
     private final UserRepository userRepository;
     private final UserMapper userMapper;
 
-    //RETURN ALL USERS (niet paginated) ------
+    //RETURN ALL USERS ------
     public Page<UserResponse> getAllUsers(Pageable pageable, Boolean isPending) {
         if (isPending != null && isPending) {
             return userRepository.findByStatusAndAccountsIsEmpty(UserStatus.PENDING, pageable)
@@ -37,7 +37,6 @@ public class UserService {
         return userRepository.findAll(pageable)
                 .map(userMapper::mapToUserResponse);
     }
-
 
 
     //GET USER BY ID ---------------------------
@@ -59,11 +58,10 @@ public class UserService {
                 .orElseThrow(() -> new RuntimeException("User not found"));
 
         User updated = userMapper.mapToExistingUser(request, existing);
-        User savedUser = userRepository.save(existing);
+        User savedUser = userRepository.save(updated);
 
         return userMapper.mapToUserResponse(savedUser);
     }
-
 
     //DELETE USER -------------------------------------------
     public void deleteUser(Long id)

@@ -34,7 +34,7 @@ public class AuthService {
 
         if(user.isEmpty())
         {
-            throw new UsernameNotFoundException("Email not found");
+            throw new UsernameNotFoundException("Invalid credentials");
         }
 
         if (!passwordEncoder.matches(request.getPassword(), user.get().getPassword()))
@@ -54,7 +54,7 @@ public class AuthService {
     }
 
 
-    public UserResponse register(@RequestBody RegisterRequest request)
+    public UserResponse register(RegisterRequest request)
     {
 
         if(userRepository.existsByEmail(request.getEmail()))

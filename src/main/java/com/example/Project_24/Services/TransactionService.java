@@ -93,6 +93,10 @@ public class TransactionService
         Account receiver = accountRepository.findById(request.getReceiverIban())
                 .orElseThrow(() -> new RuntimeException("Account not found"));
 
+        //check limits
+        checkAbsoluteLimit(receiver, request.getAmount());
+        checkDailyLimit(receiver, request.getAmount());
+
         //add to receiver balance
         receiver.setBalance(receiver.getBalance() + request.getAmount());
 
