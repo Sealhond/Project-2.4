@@ -72,7 +72,7 @@ public class AccountController {
             Pageable pageable
     ) {
         return ResponseEntity.ok(
-                accountService.getAccountsByUserName(firstName, lastName, pageable)
+                accountService.getAccountsByUserFirstNameAndLastName(firstName, lastName, pageable)
         );
     }
 
@@ -84,14 +84,12 @@ public class AccountController {
             Pageable pageable
     ) {
         return ResponseEntity.ok(
-                accountService.getIbansByUserName(firstName, lastName, pageable)
+                accountService.getIbansByUserFirstNameAndLastName(firstName, lastName, pageable)
         );
     }
 
     @GetMapping("/me")
-    public ResponseEntity<List<AccountResponse>> getMyAccounts(
-            @RequestHeader("Authorization") String authHeader
-    ) {
+    public ResponseEntity<List<AccountResponse>> getMyAccounts(@RequestHeader("Authorization") String authHeader) {
         String token = authHeader.substring(7);
 
         Long userId = jwtService.extractUserId(token);

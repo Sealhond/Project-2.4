@@ -117,7 +117,7 @@ public class AccountService {
         accountRepository.save(account);
     }
 
-    public Page<AccountResponse> getAccountsByUserName(String firstName, String lastName, Pageable pageable) {
+    public Page<AccountResponse> getAccountsByUserFirstNameAndLastName(String firstName, String lastName, Pageable pageable) {
         String first = firstName == null ? "" : firstName;
         String last = lastName == null ? "" : lastName;
 
@@ -154,8 +154,7 @@ public class AccountService {
                 .toList();
     }
 
-    public Page<IbanResponse> getIbansByUserName(String firstName, String lastName, Pageable pageable) {
-
+    public Page<IbanResponse> getIbansByUserFirstNameAndLastName(String firstName, String lastName, Pageable pageable) {
         String first = firstName == null ? "" : firstName;
         String last = lastName == null ? "" : lastName;
 
