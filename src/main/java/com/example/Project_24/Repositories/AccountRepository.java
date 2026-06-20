@@ -24,6 +24,7 @@ public interface AccountRepository extends JpaRepository<Account, String> {
     List<Account> user(User user);
     List<Account> findByUserId(Long userId);
 
+    // This query selects only the IBANs of a certain type (usually checking) and searches by first and last name
     @Query("""
     SELECT new com.example.Project_24.DTOs.Response.IbanResponse(
         a.IBAN,
@@ -42,7 +43,6 @@ public interface AccountRepository extends JpaRepository<Account, String> {
     Page<IbanResponse> searchIbans(
             @Param("firstName") String firstName,
             @Param("lastName") String lastName,
-            @Param("type") AccountType type,
-            Pageable pageable
+            @Param("type") AccountType type, Pageable pageable
     );
 }
