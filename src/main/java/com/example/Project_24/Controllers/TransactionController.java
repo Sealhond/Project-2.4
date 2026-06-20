@@ -56,21 +56,15 @@ public class TransactionController
     public ResponseEntity<Page<TransactionResponse>> getAllTransactions(Pageable pageable)
     {
         return ResponseEntity.ok(transactionService.getAllTransactions(pageable));
-
     }
 
     //TODO get per iban (met filter specification enzo)
     @GetMapping("/{iban}")
     @PreAuthorize("hasRole('ROLE_EMPLOYEE') or hasPermission(#iban, 'account', 'access')")
-    public ResponseEntity<Page<TransactionResponse>> getTransactionsByIban(
-            @PathVariable String iban,
-            @ModelAttribute TransactionFilterParams filters,
-            Pageable pageable) {
-
+    public ResponseEntity<Page<TransactionResponse>> getTransactionsByIban(@PathVariable String iban, @ModelAttribute TransactionFilterParams filters, Pageable pageable)
+    {
         return ResponseEntity.ok(transactionService.getTransactionsByIban(iban, filters, pageable));
     }
-
-
 
 
 
