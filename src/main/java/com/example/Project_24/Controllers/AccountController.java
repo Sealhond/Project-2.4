@@ -6,6 +6,7 @@ import com.example.Project_24.DTOs.Response.AccountResponse;
 import com.example.Project_24.DTOs.Response.IbanResponse;
 import com.example.Project_24.Services.AccountService;
 import com.example.Project_24.Services.JwtService;
+import jakarta.validation.Valid;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
@@ -34,8 +35,7 @@ public class AccountController {
     }
 
     @PostMapping
-    public ResponseEntity<AccountResponse> createAccount( @RequestBody AccountCreateRequest request) {
-
+    public ResponseEntity<AccountResponse> createAccount(@Valid @RequestBody AccountCreateRequest request) {
         AccountResponse account = accountService.createAccount(request);
 
         return ResponseEntity.status(HttpStatus.CREATED).body(account);
@@ -49,7 +49,7 @@ public class AccountController {
 
     @PatchMapping("/{iban}")
     @PreAuthorize("hasRole('ROLE_EMPLOYEE')")
-    public ResponseEntity<AccountResponse> updateAccount(@PathVariable String iban, @RequestBody AccountUpdateRequest request) {
+    public ResponseEntity<AccountResponse> updateAccount(@PathVariable String iban, @Valid @RequestBody AccountUpdateRequest request) {
 
         return ResponseEntity.ok(accountService.updateAccount(iban, request));
     }
@@ -89,13 +89,8 @@ public class AccountController {
     }
 
     @GetMapping("/me")
-    public ResponseEntity<List<AccountResponse>> getMyAccounts(@RequestHeader("Authorization") String authHeader) {
-        String token = authHeader.substring(7);
+    public ResponseEntity<List<AccountResponse>> getMyAccounts() {
 
-        Long userId = jwtService.extractUserId(token);
-
-        return ResponseEntity.ok(
-                accountService.getAccountsByUserId(userId)
-        );
+        return ResponseEntity.ok(accountService.getAccountsByCurrentUser());
     }
 }
