@@ -4,6 +4,7 @@ import com.example.Project_24.DTOs.Request.UpdateUserRequest;
 import com.example.Project_24.DTOs.Response.UserResponse;
 import com.example.Project_24.Models.User;
 import com.example.Project_24.Services.UserService;
+import jakarta.validation.Valid;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -49,7 +50,7 @@ public class UserController {
     //UPDATE USER
     @PutMapping("/{id}")
     @PreAuthorize("hasRole('ROLE_EMPLOYEE')")
-    public ResponseEntity<UserResponse> updateUser(@PathVariable Long id, @RequestBody UpdateUserRequest request) {
+    public ResponseEntity<UserResponse> updateUser(@PathVariable Long id, @Valid @RequestBody UpdateUserRequest request) {
 
         return ResponseEntity.ok(userService.updateUser(id, request));
     }
