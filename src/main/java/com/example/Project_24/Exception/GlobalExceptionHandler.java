@@ -26,6 +26,7 @@ public class GlobalExceptionHandler {
         return buildErrorResponse(HttpStatus.NOT_FOUND, ex.getMessage());
     }
 
+    //when @Valid fails on a request body (field error=specifiek van degene die fails)
     @ExceptionHandler(MethodArgumentNotValidException.class)
     public ResponseEntity<Map<String, Object>> handleValidation(MethodArgumentNotValidException ex) {
         Map<String, String> fieldErrors = new LinkedHashMap<>();
@@ -41,11 +42,13 @@ public class GlobalExceptionHandler {
         return response;
     }
 
+    //when json is malformed
     @ExceptionHandler(HttpMessageNotReadableException.class)
     public ResponseEntity<Map<String, Object>> handleBadRequestBody(HttpMessageNotReadableException ex) {
         return buildErrorResponse(HttpStatus.BAD_REQUEST, "Malformed request body or invalid field value");
     }
 
+    //when a required @RequestParam is missing/someone passes a bad argument
     @ExceptionHandler({IllegalArgumentException.class, MissingServletRequestParameterException.class})
     public ResponseEntity<Map<String, Object>> handleBadRequest(Exception ex) {
         return buildErrorResponse(HttpStatus.BAD_REQUEST, ex.getMessage());
@@ -57,36 +60,50 @@ public class GlobalExceptionHandler {
         return buildErrorResponse(status, ex.getReason() == null ? status.getReasonPhrase() : ex.getReason());
     }
 
+    //when no token or an invalid token is provided
     @ExceptionHandler(AuthenticationException.class)
     public ResponseEntity<Map<String, Object>> handleAuthenticationException(AuthenticationException ex) {
         return buildErrorResponse(HttpStatus.UNAUTHORIZED, "Authentication required");
     }
 
+
+    //when valid token exist but user doest have the right role
     @ExceptionHandler(AccessDeniedException.class)
     public ResponseEntity<Map<String, Object>> handleAccessDeniedException(AccessDeniedException ex) {
-        return buildErrorResponse(HttpStatus.FORBIDDEN, "Access denied");
+        return buildErrorResponse(HttpStatus.FORBIDDEN, "Access denied!!");
     }
 
+    //user not found
     @ExceptionHandler(UserNotFoundException.class)
     public ResponseEntity<Map<String, Object>> handleUserNotFound(UserNotFoundException ex) {
         return buildErrorResponse(HttpStatus.NOT_FOUND, ex.getMessage());
     }
 
+    //account not found
     @ExceptionHandler(AccountNotFoundException.class)
     public ResponseEntity<Map<String, Object>> handleAccountNotFound(AccountNotFoundException ex) {
         return buildErrorResponse(HttpStatus.NOT_FOUND, ex.getMessage());
     }
 
+    //422 unprocessable entity -> voor business rule violations (limit checks etc)
+    @ExceptionHandler(TransactionNotAllowedException.class)
+    public ResponseEntity<Map<String, Object>> handleTransactionNotAllowed(TransactionNotAllowedException ex) {
+        return buildErrorResponse(HttpStatus.UNPROCESSABLE_ENTITY, ex.getMessage());
+    }
+
+    //409 conflict eg. when someone tries to register w an email that alr exists
     @ExceptionHandler(DuplicateResourceException.class)
     public ResponseEntity<Map<String, Object>> handleDuplicateResource(DuplicateResourceException ex) {
         return buildErrorResponse(HttpStatus.CONFLICT, ex.getMessage());
     }
 
+    //400 bad request (eg. wrong password/trying to login with closed account)
     @ExceptionHandler(InvalidOperationException.class)
     public ResponseEntity<Map<String, Object>> handleInvalidOperation(InvalidOperationException ex) {
         return buildErrorResponse(HttpStatus.BAD_REQUEST, ex.getMessage());
     }
 
+    //500 catches everything else
     @ExceptionHandler(Exception.class)
     public ResponseEntity<Map<String, Object>> handleGeneric(Exception ex) {
         return buildErrorResponse(HttpStatus.INTERNAL_SERVER_ERROR, "Unexpected error occurred");
