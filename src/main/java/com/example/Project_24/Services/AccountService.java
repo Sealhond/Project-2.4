@@ -65,7 +65,6 @@ public class AccountService {
     }
 
     public AccountResponse getAccountByIban(String iban) {
-
         Account account = accountRepository.findById(iban).orElseThrow(() -> new AccountNotFoundException(iban));
 
         return accountMapper.mapToAccountResponse(account);
