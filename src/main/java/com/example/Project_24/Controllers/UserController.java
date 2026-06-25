@@ -30,10 +30,11 @@ public class UserController {
     @PreAuthorize("hasRole('ROLE_EMPLOYEE')")
     public ResponseEntity<Page<UserResponse>> getAllUsers(
             @RequestParam(defaultValue = "0") int page,
-            @RequestParam(defaultValue = "10") int size
+            @RequestParam(defaultValue = "10") int size,
+            @RequestParam(required = false) Boolean isPending
     ) {
         Pageable pageable = PageRequest.of(page, size, Sort.by("lastName").ascending());
-        return ResponseEntity.ok(userService.getAllUsers(pageable));
+        return ResponseEntity.ok(userService.getAllUsers(pageable, isPending));
     }
 
     //GET BY ID
@@ -51,8 +52,8 @@ public class UserController {
     public ResponseEntity<UserResponse> updateUser(@PathVariable Long id, @RequestBody UpdateUserRequest request) {
 
         return ResponseEntity.ok(userService.updateUser(id, request));
-
     }
+
 
     //DELETE USER
     @DeleteMapping("/{id}")
