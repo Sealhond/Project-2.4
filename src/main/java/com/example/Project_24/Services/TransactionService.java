@@ -54,11 +54,11 @@ public class TransactionService
 
         //find sender account
         Account sender = accountRepository.findById(request.getSenderIban())
-                .orElseThrow(() -> new AccountNotFoundException("Sender Iban Not Found"));
+                .orElseThrow(() -> new AccountNotFoundException(request.getSenderIban()));
 
         //find receiver account
         Account receiver = accountRepository.findById(request.getReceiverIban())
-                .orElseThrow(() -> new AccountNotFoundException("Receiver Iban Not Found"));
+                .orElseThrow(() -> new AccountNotFoundException(request.getReceiverIban()));
 
         //check limits
         checkAbsoluteLimit(sender, request.getAmount());
@@ -94,7 +94,7 @@ public class TransactionService
 
         //find receiver account
         Account receiver = accountRepository.findById(request.getReceiverIban())
-                .orElseThrow(() -> new AccountNotFoundException("Account not found"));
+                .orElseThrow(() -> new AccountNotFoundException(request.getReceiverIban()));
 
         //check limits
         checkAbsoluteLimit(receiver, request.getAmount());
@@ -126,7 +126,7 @@ public class TransactionService
 
         //find sender account
         Account sender = accountRepository.findById(request.getSenderIban())
-                .orElseThrow(() -> new RuntimeException("Account not found"));
+                .orElseThrow(() -> new AccountNotFoundException(request.getSenderIban()));
 
         //check limits
         checkAbsoluteLimit(sender, request.getAmount());
