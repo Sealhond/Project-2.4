@@ -7,6 +7,9 @@ import com.example.Project_24.DTOs.Request.WithdrawalRequest;
 import com.example.Project_24.DTOs.Response.AccountResponse;
 import com.example.Project_24.DTOs.Response.TransactionResponse;
 import com.example.Project_24.Enums.TransactionType;
+import com.example.Project_24.Exception.AccountNotFoundException;
+import com.example.Project_24.Exception.TransactionNotAllowedException;
+import com.example.Project_24.Exception.UserNotFoundException;
 import com.example.Project_24.Mappers.TransactionMapper;
 import com.example.Project_24.Models.Account;
 import com.example.Project_24.Models.Transaction;
@@ -32,6 +35,7 @@ import java.util.List;
 @Service
 public class TransactionService
 {
+    private static final double MAX_DAILY_DEPOSIT = 3000.0;
 
     private final TransactionRepository transactionRepository;
     private final AccountRepository accountRepository;
@@ -51,11 +55,11 @@ public class TransactionService
 
         //find sender account
         Account sender = accountRepository.findById(request.getSenderIban())
-                .orElseThrow(() -> new RuntimeException("Sender Iban Not Found"));
+                .orElseThrow(() -> new AccountNotFoundException(request.getSenderIban()));
 
         //find receiver account
         Account receiver = accountRepository.findById(request.getReceiverIban())
-                .orElseThrow(() -> new RuntimeException("Receiver Iban Not Found"));
+                .orElseThrow(() -> new AccountNotFoundException(request.getReceiverIban()));
 
         //check limits
         checkAbsoluteLimit(sender, request.getAmount());
@@ -91,11 +95,12 @@ public class TransactionService
 
         //find receiver account
         Account receiver = accountRepository.findById(request.getReceiverIban())
-                .orElseThrow(() -> new RuntimeException("Account not found"));
+                .orElseThrow(() -> new AccountNotFoundException(request.getReceiverIban()));
 
         //check limits
-        checkAbsoluteLimit(receiver, request.getAmount());
-        checkDailyLimit(receiver, request.getAmount());
+        //checkAbsoluteLimit(receiver, request.getAmount());
+        //checkDailyLimit(receiver, request.getAmount());
+        checkDailyDepositLimit(receiver, request.getAmount());
 
         //add to receiver balance
         receiver.setBalance(receiver.getBalance() + request.getAmount());
@@ -123,7 +128,7 @@ public class TransactionService
 
         //find sender account
         Account sender = accountRepository.findById(request.getSenderIban())
-                .orElseThrow(() -> new RuntimeException("Account not found"));
+                .orElseThrow(() -> new AccountNotFoundException(request.getSenderIban()));
 
         //check limits
         checkAbsoluteLimit(sender, request.getAmount());
@@ -186,21 +191,20 @@ public class TransactionService
     }
 
 
-
     //HELPER methods -----------------------------------------------
     private User getCurrentUser()
     {
         String email = SecurityContextHolder.getContext().getAuthentication().getName();
 
         User initiatedBy = userRepository.findByEmail(email)
-                .orElseThrow(() -> new RuntimeException("User not found"));
+                .orElseThrow(() -> new UserNotFoundException());
 
         return initiatedBy;
     }
 
     private void checkAbsoluteLimit(Account sender, Double amount) {
         if (sender.getBalance() - amount < sender.getAccountLimit()) {
-            throw new RuntimeException("Transaction would exceed absolute limit");
+            throw new TransactionNotAllowedException("Transaction would exceed absolute limit");
         }
     }
 
@@ -210,7 +214,20 @@ public class TransactionService
                 sender.getUser().getId(), startOfDay
         );
         if (amountTransferredToday + amount > sender.getUser().getDailyTransferLimit()) {
-            throw new RuntimeException("Daily transfer limit exceeded");
+            throw new TransactionNotAllowedException("Daily transfer limit exceeded");
+        }
+    }
+
+    private void checkDailyDepositLimit(Account receiver, Double amount) {
+        User currentUser = getCurrentUser();
+        LocalDateTime startOfDay = LocalDate.now().atStartOfDay();
+
+        Double depositedToday = transactionRepository.sumDepositsTodayByUserId(
+                currentUser.getId(), startOfDay, TransactionType.DEPOSIT
+        );
+
+        if (depositedToday + amount > MAX_DAILY_DEPOSIT) {
+            throw new TransactionNotAllowedException("Daily deposit limit of €3,000 exceeded");
         }
     }
 
