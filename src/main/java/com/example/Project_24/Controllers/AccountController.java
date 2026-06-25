@@ -35,6 +35,7 @@ public class AccountController {
     }
 
     @PostMapping
+    @PreAuthorize("hasRole('ROLE_EMPLOYEE')")
     public ResponseEntity<AccountResponse> createAccount(@Valid @RequestBody AccountCreateRequest request) {
         AccountResponse account = accountService.createAccount(request);
 
