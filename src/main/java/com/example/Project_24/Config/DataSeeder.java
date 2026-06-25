@@ -98,6 +98,29 @@ public class DataSeeder implements ApplicationRunner {
                 userRepository.save(user);
             }
 
+            //pending accounts
+            String[][] pendingUsers = {
+                    {"Daan",   "van Dijk",   "daan.vandijk@gmail.com",   "0612345679", "998877661"},
+                    {"Fleur",  "Vermeer",    "fleur.vermeer@gmail.com",  "0623456780", "998877662"},
+                    {"Jesse",  "Kuiper",     "jesse.kuiper@gmail.com",   "0634567891", "998877663"},
+                    {"Noor",   "Willems",    "noor.willems@gmail.com",   "0645678902", "998877664"},
+                    {"Bram",   "van den Berg","bram.vandenberg@gmail.com","0656789013", "998877665"},
+            };
+
+            for (String[] data : pendingUsers) {
+                User user = new User();
+                user.setFirstName(data[0]);
+                user.setLastName(data[1]);
+                user.setEmail(data[2]);
+                user.setPhoneNumber(data[3]);
+                user.setBsn(Long.parseLong(data[4]));
+                user.setPassword(passwordEncoder.encode("password123"));
+                user.setRole(Role.ROLE_CUSTOMER);
+                user.setStatus(UserStatus.PENDING);
+                user.setDailyTransferLimit(0.00);
+                userRepository.save(user);
+            }
+
             //ACCOUNT VAN EMPLOYEE ----------------------------------------
             Account employeeAccount = new Account();
             employeeAccount.setIBAN("NL69INHO0000000001");

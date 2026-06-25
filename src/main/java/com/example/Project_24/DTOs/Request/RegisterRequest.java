@@ -31,7 +31,7 @@ public class RegisterRequest {
     @Pattern(regexp = "^[0-9]{10,13}$", message = "Phone number must contain only digits")
     private String phoneNumber;
 
-    @NotNull(message = "BSN is required")
-    @Pattern(regexp = "^[0-9]{8,9}$", message = "BSN must contain only digits")
+    @NotBlank(message = "BSN is required")
+    @Pattern(regexp = "^[0-9]{8}$", message = "BSN must be 8 digits")
     private String bsn;
 }

@@ -93,4 +93,7 @@ public class AccountController {
 
         return ResponseEntity.ok(accountService.getAccountsByCurrentUser());
     }
+
+
+
 }
