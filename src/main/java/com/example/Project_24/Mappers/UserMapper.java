@@ -45,17 +45,14 @@ public class UserMapper {
 
     }
 
-    public User mapToExistingUser(UpdateUserRequest request, User existing)
-    {
-        existing.setFirstName(request.getFirstName());
-        existing.setLastName(request.getLastName());
-        existing.setEmail(request.getEmail());
-        existing.setPhoneNumber(request.getPhoneNumber());
-        existing.setBsn(request.getBsn());
-        existing.setStatus(request.getStatus());
-        existing.setDailyTransferLimit(request.getDailyTransferLimit());
-       // existing.setAbsoluteTransferLimit(request.getAbsoluteTransferLimit());
-
+    public User mapToExistingUser(UpdateUserRequest request, User existing) {
+        if (request.getFirstName() != null) existing.setFirstName(request.getFirstName());
+        if (request.getLastName() != null) existing.setLastName(request.getLastName());
+        if (request.getEmail() != null) existing.setEmail(request.getEmail());
+        if (request.getPhoneNumber() != null) existing.setPhoneNumber(request.getPhoneNumber());
+        if (request.getBsn() != null) existing.setBsn(Long.parseLong(request.getBsn()));
+        if (request.getStatus() != null) existing.setStatus(request.getStatus());
+        if (request.getDailyTransferLimit() != null) existing.setDailyTransferLimit(request.getDailyTransferLimit());
         return existing;
     }
 }

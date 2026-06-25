@@ -6,6 +6,8 @@ import com.example.Project_24.DTOs.Response.LoginResponse;
 import com.example.Project_24.DTOs.Response.UserResponse;
 import com.example.Project_24.Enums.Role;
 import com.example.Project_24.Enums.UserStatus;
+import com.example.Project_24.Exception.DuplicateResourceException;
+import com.example.Project_24.Exception.InvalidOperationException;
 import com.example.Project_24.Mappers.UserMapper;
 import com.example.Project_24.Models.User;
 import com.example.Project_24.Repositories.UserRepository;
@@ -32,18 +34,19 @@ public class AuthService {
         //find user by email
         Optional<User> user = userRepository.findByEmail(request.getEmail());
 
+
         if(user.isEmpty())
         {
-            throw new UsernameNotFoundException("Email not found");
+            throw new UsernameNotFoundException("Invalid credentials");
         }
 
         if (!passwordEncoder.matches(request.getPassword(), user.get().getPassword()))
         {
-            throw new RuntimeException("Invalid credentials");
+            throw new InvalidOperationException("Invalid credentials");
         }
 
         if(user.get().getStatus() == UserStatus.CLOSED) {
-            throw new RuntimeException("Account is closed");
+            throw new InvalidOperationException("Account is closed");
         }
 
         //generate jwt token
@@ -54,12 +57,11 @@ public class AuthService {
     }
 
 
-    public UserResponse register(@RequestBody RegisterRequest request)
+    public UserResponse register(RegisterRequest request)
     {
-
         if(userRepository.existsByEmail(request.getEmail()))
         {
-            throw new RuntimeException("Email already exists");
+            throw new DuplicateResourceException("Email already exists");
         }
 
         request.setPassword(passwordEncoder.encode(request.getPassword()));
@@ -69,6 +71,4 @@ public class AuthService {
 
         return userMapper.mapToUserResponse(savedUser);
     }
-
-
 }
