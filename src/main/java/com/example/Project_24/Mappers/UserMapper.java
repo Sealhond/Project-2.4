@@ -50,7 +50,7 @@ public class UserMapper {
         if (request.getLastName() != null) existing.setLastName(request.getLastName());
         if (request.getEmail() != null) existing.setEmail(request.getEmail());
         if (request.getPhoneNumber() != null) existing.setPhoneNumber(request.getPhoneNumber());
-        if (request.getBsn() != null) existing.setBsn(request.getBsn());
+        if (request.getBsn() != null) existing.setBsn(Long.parseLong(request.getBsn()));
         if (request.getStatus() != null) existing.setStatus(request.getStatus());
         if (request.getDailyTransferLimit() != null) existing.setDailyTransferLimit(request.getDailyTransferLimit());
         return existing;
