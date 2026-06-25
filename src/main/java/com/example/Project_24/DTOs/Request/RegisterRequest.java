@@ -28,7 +28,7 @@ public class RegisterRequest {
     private String password;
 
     @NotBlank(message = "Phone number is required")
-    @Pattern(regexp = "^[0-9]{10,13}$", message = "Phone number must contain only digits")
+    @Pattern(regexp = "^[0-9]{10,13}$", message = "Phone number must be between 10 - 13 digits")
     private String phoneNumber;
 
     @NotBlank(message = "BSN is required")
