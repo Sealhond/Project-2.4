@@ -1,9 +1,11 @@
 package com.example.Project_24.Controllers;
 
+import com.example.Project_24.DTOs.Request.ApproveUserRequest;
 import com.example.Project_24.DTOs.Request.UpdateUserRequest;
 import com.example.Project_24.DTOs.Response.UserResponse;
 import com.example.Project_24.Models.User;
 import com.example.Project_24.Services.UserService;
+import jakarta.validation.Valid;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -30,10 +32,11 @@ public class UserController {
     @PreAuthorize("hasRole('ROLE_EMPLOYEE')")
     public ResponseEntity<Page<UserResponse>> getAllUsers(
             @RequestParam(defaultValue = "0") int page,
-            @RequestParam(defaultValue = "10") int size
+            @RequestParam(defaultValue = "10") int size,
+            @RequestParam(required = false) Boolean isPending
     ) {
         Pageable pageable = PageRequest.of(page, size, Sort.by("lastName").ascending());
-        return ResponseEntity.ok(userService.getAllUsers(pageable));
+        return ResponseEntity.ok(userService.getAllUsers(pageable, isPending));
     }
 
     //GET BY ID
@@ -48,11 +51,11 @@ public class UserController {
     //UPDATE USER
     @PutMapping("/{id}")
     @PreAuthorize("hasRole('ROLE_EMPLOYEE')")
-    public ResponseEntity<UserResponse> updateUser(@PathVariable Long id, @RequestBody UpdateUserRequest request) {
+    public ResponseEntity<UserResponse> updateUser(@PathVariable Long id, @Valid @RequestBody UpdateUserRequest request) {
 
         return ResponseEntity.ok(userService.updateUser(id, request));
-
     }
+
 
     //DELETE USER
     @DeleteMapping("/{id}")
@@ -61,5 +64,14 @@ public class UserController {
     {
         userService.deleteUser(id);
         return ResponseEntity.noContent().build();
+    }
+
+    //APPROVE CUSTOMER
+    @PostMapping("/{id}/approve")
+    @PreAuthorize("hasRole('ROLE_EMPLOYEE')")
+    public ResponseEntity<UserResponse> approveUser(
+            @PathVariable Long id,
+            @Valid @RequestBody ApproveUserRequest request) {
+        return ResponseEntity.ok(userService.approveUser(id, request));
     }
 }
