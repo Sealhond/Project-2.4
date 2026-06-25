@@ -158,4 +158,85 @@ class UserControllerFunctionalTest {
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.firstName").value("Updated"));
     }
+
+    @Test
+    void approveUser_validRequest_returns200AndCreatesAccounts() throws Exception {
+        String token = getEmployeeToken();
+
+        User user = new User();
+        user.setFirstName("Daan");
+        user.setLastName("van Dijk");
+        user.setEmail("daan.approve@test.com");
+        user.setPassword(passwordEncoder.encode("password123"));
+        user.setRole(Role.ROLE_CUSTOMER);
+        user.setStatus(UserStatus.PENDING);
+        User saved = userRepository.save(user);
+
+        Map<String, Object> request = new HashMap<>();
+        request.put("dailyTransferLimit", 1000.0);
+        request.put("checkingAccountLimit", -500.0);
+        request.put("savingsAccountLimit", -500.0);
+
+        mockMvc.perform(post("/users/{id}/approve", saved.getId())
+                        .header("Authorization", "Bearer " + token)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(request)))
+                .andExpect(status().isOk());
+
+        // verify user is approved
+        User updated = userRepository.findById(saved.getId()).get();
+        assertEquals(UserStatus.APPROVED, updated.getStatus());
+        assertEquals(1000.0, updated.getDailyTransferLimit());
+    }
+
+    //approve user ------------
+    @Test
+    void approveUser_nonExistingId_returns404() throws Exception {
+        String token = getEmployeeToken();
+
+        Map<String, Object> request = new HashMap<>();
+        request.put("dailyTransferLimit", 1000.0);
+        request.put("checkingAccountLimit", -500.0);
+        request.put("savingsAccountLimit", -500.0);
+
+        mockMvc.perform(post("/users/999999/approve")
+                        .header("Authorization", "Bearer " + token)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(request)))
+                .andExpect(status().isNotFound());
+    }
+
+    //test limits
+    @Test
+    void approveUser_invalidLimits_returns400() throws Exception {
+        String token = getEmployeeToken();
+
+        User user = new User();
+        user.setFirstName("Daan");
+        user.setLastName("van Dijk");
+        user.setEmail("daan.invalid@test.com");
+        user.setPassword(passwordEncoder.encode("password123"));
+        user.setRole(Role.ROLE_CUSTOMER);
+        user.setStatus(UserStatus.PENDING);
+        User saved = userRepository.save(user);
+
+        Map<String, Object> request = new HashMap<>();
+        request.put("dailyTransferLimit", 99999.0); // exceeds max of 10,000
+        request.put("checkingAccountLimit", -500.0);
+        request.put("savingsAccountLimit", -500.0);
+
+        mockMvc.perform(post("/users/{id}/approve", saved.getId())
+                        .header("Authorization", "Bearer " + token)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(request)))
+                .andExpect(status().isBadRequest());
+    }
+
+    @Test
+    void approveUser_unauthenticated_returns403() throws Exception {
+        mockMvc.perform(post("/users/1/approve")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("{}"))
+                .andExpect(status().isForbidden());
+    }
 }

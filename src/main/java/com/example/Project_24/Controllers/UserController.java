@@ -1,5 +1,6 @@
 package com.example.Project_24.Controllers;
 
+import com.example.Project_24.DTOs.Request.ApproveUserRequest;
 import com.example.Project_24.DTOs.Request.UpdateUserRequest;
 import com.example.Project_24.DTOs.Response.UserResponse;
 import com.example.Project_24.Models.User;
@@ -63,5 +64,14 @@ public class UserController {
     {
         userService.deleteUser(id);
         return ResponseEntity.noContent().build();
+    }
+
+    //APPROVE CUSTOMER
+    @PostMapping("/{id}/approve")
+    @PreAuthorize("hasRole('ROLE_EMPLOYEE')")
+    public ResponseEntity<UserResponse> approveUser(
+            @PathVariable Long id,
+            @Valid @RequestBody ApproveUserRequest request) {
+        return ResponseEntity.ok(userService.approveUser(id, request));
     }
 }
