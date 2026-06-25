@@ -1,5 +1,6 @@
 package com.example.Project_24.DTOs.Request;
 
+import lombok.AllArgsConstructor;
 import lombok.Data;
 import com.example.Project_24.Enums.AccountType;
 import jakarta.validation.constraints.DecimalMin;
@@ -8,6 +9,7 @@ import jakarta.validation.constraints.NotNull;
 import lombok.Data;
 
 @Data
+@AllArgsConstructor
 public class AccountCreateRequest {
 
     @NotNull(message = "User ID is required")
