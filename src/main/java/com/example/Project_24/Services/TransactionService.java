@@ -35,6 +35,7 @@ import java.util.List;
 @Service
 public class TransactionService
 {
+    private static final double MAX_DAILY_DEPOSIT = 3000.0;
 
     private final TransactionRepository transactionRepository;
     private final AccountRepository accountRepository;
@@ -97,8 +98,9 @@ public class TransactionService
                 .orElseThrow(() -> new AccountNotFoundException(request.getReceiverIban()));
 
         //check limits
-        checkAbsoluteLimit(receiver, request.getAmount());
-        checkDailyLimit(receiver, request.getAmount());
+        //checkAbsoluteLimit(receiver, request.getAmount());
+        //checkDailyLimit(receiver, request.getAmount());
+        checkDailyDepositLimit(receiver, request.getAmount());
 
         //add to receiver balance
         receiver.setBalance(receiver.getBalance() + request.getAmount());
@@ -189,7 +191,6 @@ public class TransactionService
     }
 
 
-
     //HELPER methods -----------------------------------------------
     private User getCurrentUser()
     {
@@ -214,6 +215,19 @@ public class TransactionService
         );
         if (amountTransferredToday + amount > sender.getUser().getDailyTransferLimit()) {
             throw new TransactionNotAllowedException("Daily transfer limit exceeded");
+        }
+    }
+
+    private void checkDailyDepositLimit(Account receiver, Double amount) {
+        User currentUser = getCurrentUser();
+        LocalDateTime startOfDay = LocalDate.now().atStartOfDay();
+
+        Double depositedToday = transactionRepository.sumDepositsTodayByUserId(
+                currentUser.getId(), startOfDay, TransactionType.DEPOSIT
+        );
+
+        if (depositedToday + amount > MAX_DAILY_DEPOSIT) {
+            throw new TransactionNotAllowedException("Daily deposit limit of €3,000 exceeded");
         }
     }
 

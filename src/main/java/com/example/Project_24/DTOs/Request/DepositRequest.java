@@ -1,9 +1,6 @@
 package com.example.Project_24.DTOs.Request;
 
-import jakarta.validation.constraints.DecimalMin;
-import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.NotEmpty;
-import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.*;
 import lombok.Data;
 
 @Data
@@ -14,6 +11,7 @@ public class DepositRequest {
 
     @NotNull
     @DecimalMin(value = "0.01", message = "Amount must be greater than 0")
+    @DecimalMax(value = "3000.0", message = "Cannot deposit more than €3,000 per day")
     private Double amount;
 
 }
