@@ -115,7 +115,7 @@ public class AuthServiceTest {
         assertThrows(InvalidOperationException.class, () -> authService.login(request));
     }
 
-    // REGISTER ------------------
+    //REGISTER ------------------
     @Test
     void register_newEmail_returnsUserResponse() {
         RegisterRequest request = new RegisterRequest();
@@ -149,9 +149,6 @@ public class AuthServiceTest {
 
         assertThrows(DuplicateResourceException.class, () -> authService.register(request));
     }
-
-    //register--------------------
-
 
 
 
