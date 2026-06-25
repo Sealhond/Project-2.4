@@ -1,16 +1,21 @@
 package com.example.Project_24.services;
 
+import com.example.Project_24.DTOs.Request.AccountCreateRequest;
+import com.example.Project_24.DTOs.Request.ApproveUserRequest;
 import com.example.Project_24.DTOs.Request.UpdateUserRequest;
 import com.example.Project_24.DTOs.Response.UserResponse;
+import com.example.Project_24.Enums.AccountType;
 import com.example.Project_24.Enums.UserStatus;
 import com.example.Project_24.Exception.UserNotFoundException;
 import com.example.Project_24.Mappers.UserMapper;
 import com.example.Project_24.Models.User;
 import com.example.Project_24.Repositories.UserRepository;
+import com.example.Project_24.Services.AccountService;
 import com.example.Project_24.Services.UserService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.ArgumentCaptor;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
@@ -37,6 +42,9 @@ public class UserServiceTest {
 
     @InjectMocks
     private UserService userService;
+
+    @Mock
+    private AccountService accountService;
 
     //test data
     private User mockUser;
@@ -144,6 +152,62 @@ public class UserServiceTest {
         when(userRepository.findById(999L)).thenReturn(Optional.empty());
 
         assertThrows(UserNotFoundException.class, () -> userService.deleteUser(999L));
+    }
+
+    //approve user ---------------
+    //check userstatus changed to approved, dailylimit set, account create request called 2times
+    @Test
+    void approveUser_existingId_approvesUserAndCreatesAccounts() {
+        ApproveUserRequest request = new ApproveUserRequest();
+        request.setDailyTransferLimit(1000.0);
+        request.setCheckingAccountLimit(-500.0);
+        request.setSavingsAccountLimit(-500.0);
+
+        mockUser.setStatus(UserStatus.PENDING);
+
+        when(userRepository.findById(1L)).thenReturn(Optional.of(mockUser));
+        when(userRepository.save(mockUser)).thenReturn(mockUser);
+        when(userMapper.mapToUserResponse(mockUser)).thenReturn(mockUserResponse);
+
+        UserResponse result = userService.approveUser(1L, request);
+
+        assertEquals(UserStatus.APPROVED, mockUser.getStatus());
+        assertEquals(1000.0, mockUser.getDailyTransferLimit());
+        verify(accountService, times(2)).createAccount(any(AccountCreateRequest.class));
+        assertNotNull(result);
+    }
+
+    @Test
+    void approveUser_nonExistingId_throwsUserNotFoundException() {
+        when(userRepository.findById(999L)).thenReturn(Optional.empty());
+
+        assertThrows(UserNotFoundException.class, () -> userService.approveUser(999L, new ApproveUserRequest()));
+    }
+
+    //argumentcaptor ,voor account create request checken
+    @Test
+    void approveUser_createsCheckingAndSavingsAccounts() {
+        ApproveUserRequest request = new ApproveUserRequest();
+        request.setDailyTransferLimit(1000.0);
+        request.setCheckingAccountLimit(-500.0);
+        request.setSavingsAccountLimit(-1000.0);
+
+        mockUser.setStatus(UserStatus.PENDING);
+
+        when(userRepository.findById(1L)).thenReturn(Optional.of(mockUser));
+        when(userRepository.save(mockUser)).thenReturn(mockUser);
+        when(userMapper.mapToUserResponse(mockUser)).thenReturn(mockUserResponse);
+
+        userService.approveUser(1L, request);
+
+        ArgumentCaptor<AccountCreateRequest> captor = ArgumentCaptor.forClass(AccountCreateRequest.class);
+        verify(accountService, times(2)).createAccount(captor.capture());
+
+        List<AccountCreateRequest> accounts = captor.getAllValues();
+        assertEquals(AccountType.CHECKING, accounts.get(0).getAccountType());
+        assertEquals(AccountType.SAVINGS, accounts.get(1).getAccountType());
+        assertEquals(-500.0, accounts.get(0).getAccountLimit());
+        assertEquals(-1000.0, accounts.get(1).getAccountLimit());
     }
 
 
