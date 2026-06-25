@@ -3,6 +3,7 @@ package com.example.Project_24.Services;
 import com.example.Project_24.DTOs.Request.UpdateUserRequest;
 import com.example.Project_24.DTOs.Response.UserResponse;
 import com.example.Project_24.Enums.UserStatus;
+import com.example.Project_24.Exception.UserNotFoundException;
 import com.example.Project_24.Mappers.UserMapper;
 import com.example.Project_24.Models.User;
 import com.example.Project_24.Repositories.UserRepository;
@@ -45,7 +46,7 @@ public class UserService {
 
         if(user.isEmpty())
         {
-            throw new RuntimeException("User not found");
+            throw new UserNotFoundException();
         }
 
         return userMapper.mapToUserResponse(user.get());
@@ -55,7 +56,7 @@ public class UserService {
     public UserResponse updateUser(Long id, UpdateUserRequest request)
     {
         User existing = userRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("User not found"));
+                .orElseThrow(() -> new UserNotFoundException());
 
         User updated = userMapper.mapToExistingUser(request, existing);
         User savedUser = userRepository.save(updated);
@@ -67,7 +68,7 @@ public class UserService {
     public void deleteUser(Long id)
     {
         User user = userRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("User not found"));
+                .orElseThrow(() -> new UserNotFoundException());
 
         user.setStatus(UserStatus.CLOSED);  //set status to closed
         userRepository.save(user);
